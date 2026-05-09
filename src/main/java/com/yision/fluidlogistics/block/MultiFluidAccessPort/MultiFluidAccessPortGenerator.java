@@ -28,7 +28,11 @@ public class MultiFluidAccessPortGenerator extends SpecialBlockStateGen {
             prov.modLoc("block/multi_fluid_access_port/block_" + state.getValue(MultiFluidAccessPortBlock.TARGET)
                 .getSerializedName());
         return prov.models().withExistingParent(path + (attached ? "_on" : "_off"), path)
-            .texture("top", prov.modLoc("block/multi-fluid_access_port_" + (attached ? "top_on" : "top")))
-            .texture("down", prov.modLoc("block/multi-fluid_access_port_" + (attached ? "down_on" : "down")));
+            .texture("top",
+                prov.modLoc("block/multi_fluid_access_port/multi-fluid_access_port_"
+                    + (attached ? "top_on" : "top")))
+            .texture("down",
+                prov.modLoc("block/multi_fluid_access_port/multi-fluid_access_port_"
+                    + (attached ? "down_on" : "down")));
     }
 }

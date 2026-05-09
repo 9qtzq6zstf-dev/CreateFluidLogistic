@@ -4,7 +4,9 @@ import java.util.Random;
 
 import com.simibubi.create.AllTags.AllItemTags;
 import com.simibubi.create.foundation.data.AssetLookup;
+import com.tterrag.registrate.providers.ProviderType;
 import com.tterrag.registrate.util.entry.ItemEntry;
+import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.item.CompressedTankItem;
 import com.yision.fluidlogistics.item.FluidPackageItem;
@@ -24,6 +26,7 @@ public class AllItems {
             .removeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, FluidLogistics.asResource("fluidlogistics_tab")))
             .properties(p -> p.stacksTo(1))
             .model(AssetLookup.existingItemModel())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
             .register();
 
     public static final ItemEntry<FluidPackageItem> RARE_FLUID_PACKAGE = REGISTRATE
@@ -31,7 +34,7 @@ public class AllItems {
             .properties(p -> p.stacksTo(1))
             .tag(AllItemTags.PACKAGES.tag)
             .model(AssetLookup.existingItemModel())
-            .lang("Rare Fluid Package")
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
             .register();
 
     public static final ItemEntry<FluidPackageItem> FLUID_PACKAGE_2 = REGISTRATE
@@ -40,7 +43,7 @@ public class AllItems {
             .properties(p -> p.stacksTo(1))
             .tag(AllItemTags.PACKAGES.tag)
             .model(AssetLookup.existingItemModel())
-            .lang("Rare Fluid Package")
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
             .register();
 
     public static final ItemEntry<HandPointerItem> HAND_POINTER = REGISTRATE
@@ -48,14 +51,14 @@ public class AllItems {
             .properties(p -> p.stacksTo(1))
             .tag(Items.TOOLS)
             .model(AssetLookup.existingItemModel())
-            .lang("Hand Pointer")
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
             .register();
 
     public static final ItemEntry<PortableStockTickerItem> PORTABLE_STOCK_TICKER = REGISTRATE
             .item("portable_stock_ticker", PortableStockTickerItem::new)
             .properties(p -> p.stacksTo(1))
             .model(AssetLookup.existingItemModel())
-            .lang("Portable Stock Ticker")
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
             .register();
 
     private static final Random FLUID_PACKAGE_PICKER = new Random();

@@ -26,7 +26,7 @@ public class FluidTransporterGenerator extends SpecialBlockStateGen {
         if (facing == Direction.DOWN || facing == Direction.UP) {
             return 0;
         }
-        return horizontalAngle(facing) + 180;
+        return horizontalAngle(facing);
     }
 
     @Override

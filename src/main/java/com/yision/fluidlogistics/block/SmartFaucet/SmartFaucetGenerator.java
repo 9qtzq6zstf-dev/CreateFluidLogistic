@@ -18,7 +18,7 @@ public class SmartFaucetGenerator extends SpecialBlockStateGen {
     @Override
     protected int getYRotation(BlockState state) {
         Direction facing = state.getValue(SmartFaucetBlock.FACING);
-        return horizontalAngle(facing);
+        return horizontalAngle(facing) + 180;
     }
 
     @Override
