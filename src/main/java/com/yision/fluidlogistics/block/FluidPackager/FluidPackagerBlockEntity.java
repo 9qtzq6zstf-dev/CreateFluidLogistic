@@ -15,7 +15,6 @@ import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.Create;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
-import com.simibubi.create.content.fluids.tank.CreativeFluidTankBlockEntity.CreativeSmartFluidTank;
 import com.simibubi.create.compat.computercraft.AbstractComputerBehaviour;
 import com.simibubi.create.compat.computercraft.events.PackageEvent;
 import com.simibubi.create.content.contraptions.actors.psi.PortableFluidInterfaceBlockEntity;
@@ -50,6 +49,7 @@ import com.yision.fluidlogistics.item.FluidPackageItem;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 import com.yision.fluidlogistics.registry.AllItems;
 import com.yision.fluidlogistics.util.FluidInsertionHelper;
+import com.yision.fluidlogistics.util.InfiniteFluidHandlerHelper;
 import com.yision.fluidlogistics.util.IPackagerOverrideData;
 
 import net.createmod.catnip.codecs.CatnipCodecUtils;
@@ -303,7 +303,6 @@ public class FluidPackagerBlockEntity extends SmartBlockEntity implements Cleara
         if (fluidHandler == null)
             return Map.of();
 
-        boolean isCreativeHandler = fluidHandler instanceof CreativeSmartFluidTank;
         int tankCount = safeGetTanks(fluidHandler);
         if (tankCount == 0)
             return Map.of();
@@ -315,7 +314,7 @@ public class FluidPackagerBlockEntity extends SmartBlockEntity implements Cleara
                 continue;
 
             FluidTypeKey key = FluidTypeKey.of(fluid);
-            int amountToAdd = isCreativeHandler ? BigItemStack.INF : fluid.getAmount();
+            int amountToAdd = InfiniteFluidHandlerHelper.getStockAmount(fluidHandler, fluid);
             scannedSnapshot.merge(key, amountToAdd, FluidPackagerBlockEntity::mergeFluidAmounts);
         }
 
@@ -551,18 +550,16 @@ public class FluidPackagerBlockEntity extends SmartBlockEntity implements Cleara
     }
 
     private FluidStack extractFluidFromTank(IFluidHandler handler, int maxAmount) {
-        boolean isCreativeHandler = handler instanceof CreativeSmartFluidTank;
-        
         int tankCount = safeGetTanks(handler);
         for (int tank = 0; tank < tankCount; tank++) {
             FluidStack fluidInTank = safeGetFluidInTank(handler, tank);
             if (fluidInTank.isEmpty())
                 continue;
 
-            if (isCreativeHandler) {
-                return fluidInTank.copyWithAmount(maxAmount);
-            }
-            
+            FluidStack infiniteDrain = InfiniteFluidHandlerHelper.drainFromInfiniteSource(handler, fluidInTank, maxAmount);
+            if (!infiniteDrain.isEmpty())
+                return infiniteDrain;
+
             int drainAmount = Math.min(maxAmount, fluidInTank.getAmount());
             FluidStack toDrain = fluidInTank.copyWithAmount(drainAmount);
             FluidStack drained = handler.drain(toDrain, FluidAction.EXECUTE);
@@ -927,8 +924,6 @@ public class FluidPackagerBlockEntity extends SmartBlockEntity implements Cleara
     }
 
     private FluidStack extractSpecificFluidFromTank(IFluidHandler handler, FluidStack targetFluid, int maxAmount) {
-        boolean isCreativeHandler = handler instanceof CreativeSmartFluidTank;
-        
         int tankCount = safeGetTanks(handler);
         for (int tank = 0; tank < tankCount; tank++) {
             FluidStack fluidInTank = safeGetFluidInTank(handler, tank);
@@ -937,10 +932,10 @@ public class FluidPackagerBlockEntity extends SmartBlockEntity implements Cleara
             if (!FluidStack.isSameFluidSameComponents(fluidInTank, targetFluid))
                 continue;
 
-            if (isCreativeHandler) {
-                return fluidInTank.copyWithAmount(maxAmount);
-            }
-            
+            FluidStack infiniteDrain = InfiniteFluidHandlerHelper.drainFromInfiniteSource(handler, fluidInTank, maxAmount);
+            if (!infiniteDrain.isEmpty())
+                return infiniteDrain;
+
             int drainAmount = Math.min(maxAmount, fluidInTank.getAmount());
             FluidStack toDrain = fluidInTank.copyWithAmount(drainAmount);
             FluidStack drained = handler.drain(toDrain, FluidAction.EXECUTE);

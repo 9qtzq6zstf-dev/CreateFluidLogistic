@@ -11,6 +11,7 @@ import com.yision.fluidlogistics.handler.fluidpackage.FluidPackageTargetAdapters
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 
 public final class FluidInsertionHelper {
 
@@ -38,7 +39,14 @@ public final class FluidInsertionHelper {
         }
 
         for (FluidStack fluid : packageFluids) {
+            if (InfiniteFluidHandlerHelper.canAcceptInfinitely(fluidHandler, fluid)) {
+                continue;
+            }
+
             if (!reserveFluid(fluidHandler, tankSnapshots, fluid)) {
+                return false;
+            }
+            if (fluidHandler.fill(fluid.copy(), FluidAction.SIMULATE) != fluid.getAmount()) {
                 return false;
             }
         }

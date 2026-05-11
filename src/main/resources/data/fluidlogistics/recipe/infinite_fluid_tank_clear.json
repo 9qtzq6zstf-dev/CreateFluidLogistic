@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "fluidlogistics:infinite_fluid_tank"
+    }
+  ],
+  "result": {
+    "id": "fluidlogistics:infinite_fluid_tank",
+    "count": 1
+  }
+}
