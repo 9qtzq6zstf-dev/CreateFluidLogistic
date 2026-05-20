@@ -1,28 +1,29 @@
-# CFL (CreateFluidLogistics) vs Fluid 2.0.0 Source Similarity Analysis Report
-
-
-## 1. Conclusion Summary
-
-Fluid 2.0.0 and CFL show systematic structural equivalence in their fluid packaging functionality. The evidence is concentrated in three main areas:
-
-1. The main fluid packaging path: from fluid inventory scanning, virtual fluid request items, fluid rendering in Redstone Requester and Factory Panel ghost slots, fluid entry rendering in the StockKeeper request list, and request-based fluid extraction, to generating packages with address and order metadata.
-2. The clipboard address system: `#`-prefixed address parsing, network packet handling, sign-address protection, address writing, and feedback effects.
-3. Factory Panel and StockKeeper UI integration: mixin injections around the same Create methods to modify fluid amount settings, display, restocking, and StockKeeper rendering.
-
-This document is organized as "Evidence overview -> itemized code comparison -> supplemental fluid packaging evidence -> architecture comparison -> overall conclusion". All code comparisons use a side-by-side format.
+# CFL (CreateFluidLogistics) vs Fluid 2.0.0 Source Code Similarity Analysis Report
 
 ---
 
-## 2. File Correspondence
+## 1. Executive Summary
 
-| No. | Fluid 2.0.0 File | CFL Corresponding File | Strength | Notes |
-|------|------------------|------------------------|----------|-------|
-| 1 | `util/ClipboardAddressUtil.java` | `util/ClipboardAddressUtil.java` | Very high | Clipboard `#` address parsing |
-| 2 | `packet/ClipboardSetAddressPacket.java` | `network/ClipboardSetAddressPacket.java` | Very high | Clipboard address network packet |
-| 3 | `mixin/InventorySummaryMixin.java` | `mixin/logistics/InventorySummaryMixin.java` | High | Virtual fluid item counting |
+Fluid 2.0.0 and CFL show a systematic isomorphic relationship in fluid-packaging functionality. The evidence is mainly concentrated in three areas:
+
+1. Main fluid-packaging workflow: from scanning fluid inventory, virtual fluid request items, fluid rendering in Redstone Requester and Factory Panel ghost slots, StockKeeper request-list fluid-entry rendering, extracting fluids according to requests, through to generating packages with address and order information.
+2. Clipboard address system: `#`-prefixed address parsing, network packet handling, sign-address protection, address writing, and feedback effects.
+3. Factory Panel and StockKeeper interfaces: mixin injection around the same Create methods to modify fluid amount setting, display, restocking, and StockKeeper rendering.
+
+This document has been reorganized into “Executive Summary → Evidence Index → Code-Level Evidence → Fluid Packaging and UI Workflow → Git History and Resource Files → JEI Input Workflow → Architectural Comparison → Overall Judgment.” All code comparisons use a left-right parallel format.
+
+---
+
+## 2. Evidence Index and File Correspondence
+
+| No. | Fluid 2.0.0 File | CFL Corresponding File | Strength | Description |
+|------|------------------|--------------|------|------|
+| 1 | `util/ClipboardAddressUtil.java` | `util/ClipboardAddressUtil.java` | Very High | Clipboard `#` address parsing |
+| 2 | `packet/ClipboardSetAddressPacket.java` | `network/ClipboardSetAddressPacket.java` | Very High | Clipboard address network packet |
+| 3 | `mixin/InventorySummaryMixin.java` | `mixin/logistics/InventorySummaryMixin.java` | High | Virtual fluid item statistics |
 | 4 | `mixin/FactoryPanelBehaviourMixin.java` | `mixin/logistics/FactoryPanelBehaviourMixin.java` | High | Factory Panel behavior extension |
 | 5 | `mixin/CanFillerBlockEntityMixin.java` | `mixin/logistics/PackagerBlockEntityMixin.java` | High | Sign address reading |
-| 6 | `mixin/FactoryPanelBlockEntityMixin.java` | `mixin/logistics/FactoryPanelBlockEntityMixin.java` | High | Adjacent block recognition for panels |
+| 6 | `mixin/FactoryPanelBlockEntityMixin.java` | `mixin/logistics/FactoryPanelBlockEntityMixin.java` | High | Recognition of the adjacent block behind the panel |
 | 7 | `goggle/CanFillerGoggleInfo.java` | `goggle/PackagerGoggleInfo.java` | High | Goggle information display |
 | 8 | `util/ICanFillerData.java` | `util/IPackagerOverrideData.java` | High | Address attachment interface |
 | 9 | `mixin/StockKeeperRequestScreenMixin.java` | `mixin/client/StockKeeperRequestScreenMixin.java` | High | StockKeeper fluid amount rendering |
@@ -30,18 +31,27 @@ This document is organized as "Evidence overview -> itemized code comparison -> 
 | 11 | `client/FluidAmountHelper.java` | `util/FluidAmountHelper.java` | Medium | Fluid amount formatting |
 | 12 | `client/FluidValueBoxRenderer.java` | `mixin/client/ValueBoxRendererMixin.java` | Medium | ValueBox fluid rendering |
 
+### Complete Evidence Groups
+
+| Evidence Range | Category | Strength Range | Description |
+|----------|------|----------|------|
+| Evidence 1-12 | Code-level comparison | Medium to Very High | Core code similarities in address handling, inventory statistics, Factory Panel, Goggle, StockKeeper, ValueBox, etc. |
+| Evidence 13-18 | Fluid packaging and UI workflow | Medium to High | Packaging, unpacking, virtual fluid request items, Redstone Requester and Factory Panel slot rendering |
+| Evidence 19-22 | Git history and resource files | Medium to Very High | Commit timeline, model/blockstate files, PNG blobs, FluidSlotRenderer |
+| Evidence 23-25 | JEI, renaming, and item skeleton | Medium to High | JEI ghost target, migration from `fluid_packager` to `can_filler`, `PackageItem` skeleton |
+
 ---
 
-## 3. Detailed Evidence
+## 3. Code-Level Detailed Evidence
 
 ### Evidence 1: ClipboardAddressUtil
 
-**Severity: Very high**
+**Severity: Very High**
 
 | Dimension | Fluid 2.0.0 | CFL |
 |------|-------------|-----|
 | File | `util/ClipboardAddressUtil.java` | `util/ClipboardAddressUtil.java` |
-| Method | Helper methods including `extractFirstAddress` | `extractFirstAddress` |
+| Method | Helper methods such as `extractFirstAddress` | `extractFirstAddress` |
 
 ```java
 // Fluid 2.0.0                                          // CFL git HEAD
@@ -76,13 +86,13 @@ private static String stripAddressPrefix(String text) {
 }
 ```
 
-Comparison conclusion: Fluid splits CFL's inline implementation into `findFirstAddress`, `isValidAddress`, and `stripAddressPrefix`, but the conditions and return logic remain `readAll` -> iterate pages and entries -> `startsWith("#")` -> `substring(1).stripLeading()` -> return when non-empty.
+Comparison conclusion: Fluid splits CFL’s inline implementation into `findFirstAddress`, `isValidAddress`, and `stripAddressPrefix`, but the conditions and return logic remain: `readAll` → iterate pages and entries → `startsWith("#")` → `substring(1).stripLeading()` → return if non-empty.
 
 ---
 
 ### Evidence 2: ClipboardSetAddressPacket
 
-**Severity: Very high**
+**Severity: Very High**
 
 | Dimension | Fluid 2.0.0 | CFL |
 |------|-------------|-----|
@@ -151,7 +161,7 @@ private static void applyAddressToPackager(...) {        if (fluidlogistics$hasS
 }                                                         fluidlogistics$sendFeedback(level, pos, player, true);
 ```
 
-Comparison conclusion: Both sides perform build-permission checks, chunk-loaded checks, `64.0` distance checks, clipboard address extraction, empty-address failure handling, sign-address protection, address writing, and feedback effects. Fluid 2.0.0 centralizes clipboard lookup and parsing in `ClipboardAddressHandler`; CFL uses held-item checks and `ClipboardAddressUtil` separately.
+Comparison conclusion: Both sides perform permission checks, loaded-chunk checks, a `64.0` distance check, clipboard address extraction, empty-address failure handling, sign-address protection, address writing, and feedback effects. Fluid 2.0.0 centralizes clipboard lookup and parsing in `ClipboardAddressHandler`, while CFL uses held-item checking and `ClipboardAddressUtil` separately.
 
 ---
 
@@ -187,7 +197,7 @@ private void fluid$addFluidManifest(ItemStack stack,    private void fluidlogist
 }                                                        }
 ```
 
-Comparison conclusion: Both use a mixin to intercept `InventorySummary`, merge virtual fluid containers as inventory summary entries, and use the same upper-limit semantics: Fluid writes `1000000000` directly, while CFL uses `BigItemStack.INF`.
+Comparison conclusion: Both use mixins to intercept `InventorySummary`, merge virtual fluid containers as inventory statistic entries, and use the same upper-limit semantics: Fluid writes `1000000000` directly, while CFL uses `BigItemStack.INF`.
 
 ---
 
@@ -292,7 +302,7 @@ fluid$getBucketCountLabel(cir) {                           fluidlogistics$onGetC
 }                                                           }
 ```
 
-Comparison conclusion: Both extend the same `FactoryPanelBehaviour` to handle fluid restocking, amount settings, and display. In `tryRestock`, the structures around `inStorage/promised/demand` calculation, broadcasting `PackageOrderWithCrafts`, and writing `restockerPromises` correspond clearly.
+Comparison conclusion: Both extend fluid restocking, amount settings, and display around the same `FactoryPanelBehaviour`. In `tryRestock`, the `inStorage/promised/demand` calculation, broadcasting of `PackageOrderWithCrafts`, and writing into `restockerPromises` correspond clearly.
 
 ---
 
@@ -326,7 +336,7 @@ for (boolean front : new boolean[]{true, false}) {        for (boolean front : I
 return "";                                                  return "";
 ```
 
-Comparison conclusion: Both read sign addresses in the same order: adjacent block -> `SignBlockEntity` -> front and back text -> text components -> trim and concatenate -> return address.
+Comparison conclusion: Both read sign addresses in the same sequence: adjacent block → `SignBlockEntity` → front/back side → text components → trim and concatenate → return address.
 
 ---
 
@@ -362,7 +372,7 @@ private static BlockEntity fluid$getAttachedBlockEntity(     BlockEntity be = se
 }
 ```
 
-Comparison conclusion: Both use `FactoryPanelBlock.connectedDirection(state).getOpposite()` to calculate the adjacent block behind the panel and use that block entity to determine whether to enter fluid packager logic.
+Comparison conclusion: Both use `FactoryPanelBlock.connectedDirection(state).getOpposite()` to calculate the adjacent block behind the panel, and then use that block entity to decide whether to enter fluid-packager-related logic.
 
 ---
 
@@ -410,7 +420,7 @@ public interface ICanFillerData {                       public interface IPackag
                                                          }
 ```
 
-Comparison conclusion: Fluid preserves the two core address read/write interface methods, while CFL additionally includes manual override lock state.
+Comparison conclusion: Fluid retains the two core address read/write interface methods, while CFL additionally includes manual override lock state.
 
 ---
 
@@ -456,7 +466,7 @@ fluid$redirectDrawItemCount(instance, graphics, count, custom) {fluidlogistics$r
                                                           }
 ```
 
-Comparison conclusion: Both identify virtual fluid entries at the start of `renderItemEntry` and intercept `drawItemCount` to take over StockKeeper amount display. Fluid uses `FluidManifestItem`; CFL uses virtual `CompressedTankItem`. Both ultimately call `FluidSlotAmountRenderer.renderInStockKeeper`.
+Comparison conclusion: Both identify virtual fluid entries at the beginning of `renderItemEntry` and intercept `drawItemCount` to take over StockKeeper amount display. Fluid uses `FluidManifestItem`; CFL uses a virtual `CompressedTankItem`; both ultimately call `FluidSlotAmountRenderer.renderInStockKeeper`.
 
 ---
 
@@ -487,7 +497,7 @@ fluid$renderInputFluidTooltip(..., BigItemStack item) {  fluidlogistics$redirect
 }                                                        }
 ```
 
-Comparison conclusion: Both intercept tooltip rendering in `renderInputItem` and reuse the same Create translation keys and color/italic style combinations.
+Comparison conclusion: Both intercept tooltip rendering in `renderInputItem` and reuse the same Create translation keys plus color/italic style combinations.
 
 ---
 
@@ -527,7 +537,7 @@ public static String formatWithUnit(int amountMB) {      public static String fo
                                                             }
 ```
 
-Comparison conclusion: Both perform display conversion around the same `1000 mB = 1 B` unit system. Fluid keeps simplified `format/formatWithUnit` helpers, while CFL expands this into StockKeeper display, detailed display, and Factory Panel scroll value conversion. The core rule remains: show small mB values directly, convert whole buckets to B, and display non-whole buckets as decimals with trailing zeros removed.
+Comparison conclusion: Both perform display conversion around the same unit system, `1000 mB = 1 B`. Fluid retains simplified `format/formatWithUnit` methods, while CFL expands into StockKeeper, detailed display, and Factory Panel scroll-wheel value conversion. The core rules remain: display small mB values directly, convert whole buckets to B, and show non-whole buckets as decimals with trailing zeros stripped.
 
 ---
 
@@ -538,7 +548,7 @@ Comparison conclusion: Both perform display conversion around the same `1000 mB 
 | Dimension | Fluid 2.0.0 | CFL |
 |------|-------------|-----|
 | File | `client/FluidValueBoxRenderer.java` | `mixin/client/ValueBoxRendererMixin.java` |
-| Topic | Replacing item rendering with fluid texture in ValueBox | Intercepting ValueBoxRenderer and rendering virtual fluids |
+| Topic | Replace item rendering with fluid texture rendering in ValueBox | Intercept ValueBoxRenderer and render virtual fluids |
 
 ```java
 // Fluid 2.0.0                                          // CFL git HEAD
@@ -567,13 +577,14 @@ public static void renderFluidIntoValueBox(             @Inject(method = "render
                                                         }
 ```
 
-Comparison conclusion: Fluid extracts the rendering logic into a standalone `FluidValueBoxRenderer`, while CFL injects into Create's `ValueBoxRenderer` through mixins. The functional location is the same: when the filter represents a fluid, default item rendering is skipped and replaced with a fluid texture or fluid quad; both use `copyWithAmount(1)` for `amount == 0` fluids to ensure visibility.
+Comparison conclusion: Fluid extracts the rendering logic into a standalone `FluidValueBoxRenderer`, while CFL injects into Create’s `ValueBoxRenderer` via mixin. The functional location is the same: when the filter represents a fluid, skip default item rendering and instead display a fluid texture/fluid quad; for fluids with `amount == 0`, use `copyWithAmount(1)` to make them visible.
 
 ---
 
-## 4. Supplemental Fluid Packaging Evidence
+## 4. Fluid Packaging and UI Workflow Evidence
 
-### Evidence 13: Extracting Fluid by Request and Generating Packages
+
+### Evidence 13: Extracting Fluids by Request and Generating Packages
 
 **Severity: High**
 
@@ -623,7 +634,7 @@ triggerStockCheck();                                    triggerStockCheck();
 notifyUpdate();                                         notifyUpdate();
 ```
 
-Comparison conclusion: This is not the previously removed arrival-commit logic, but the actual fluid packaging path. Both sides take the target fluid from `PackagingRequest`, extract fluid by the requested amount, generate a fluid package, clear and write addresses, write order metadata, subtract from the request count, and then either eject immediately or enqueue into `queuedExitingPackages` depending on `heldBox/animationTicks`.
+Comparison conclusion: This is not the originally removed arrival-submission logic, but the actual fluid-packaging workflow. Both sides take the target fluid from `PackagingRequest`, extract fluids according to the requested amount, generate a fluid package, clear and write the address, write order metadata, subtract the request amount, and then decide—based on `heldBox/animationTicks`—whether to eject immediately or enter `queuedExitingPackages`.
 
 ---
 
@@ -672,18 +683,18 @@ private boolean unwrapCopperCan(ItemStack box, boolean simulate) {
                                                         }
 ```
 
-Comparison conclusion: Fluid directly simulates and executes `fluidHandler.fill` for a single `CopperCanItem`; CFL first collects multiple `FluidStack` values inside the package and then fills them after the animation through `pendingFluidsToInsert`. The implementation granularity differs, but the state machine is consistent: unpacking checks, capacity simulation, recording `previouslyUnwrapped`, inward animation, stock refresh, and synchronization.
+Comparison conclusion: Fluid directly simulates and executes `fluidHandler.fill` for a single `CopperCanItem`; CFL first collects `FluidStack` values from multiple compressed tanks inside the package, then performs filling through `pendingFluidsToInsert` after the animation ends. The implementation granularity differs, but the state machine is consistent: unpacking check, simulated capacity, recording `previouslyUnwrapped`, inward animation, stock refresh, and synchronization.
 
 ---
 
-### Supplemental Evidence 16: Data Structure for Virtual Fluid Request Items
+### Evidence 15: Data Structure of Virtual Fluid Request Items
 
 **Severity: Medium**
 
 | Dimension | Fluid 2.0.0 | CFL |
 |------|-------------|-----|
 | File | `item/FluidManifestItem.java` | `item/CompressedTankItem.java` |
-| Topic | Uses a lightweight item to represent a request for "some fluid" | Uses a virtual compressed tank to represent a request for "some fluid" |
+| Topic | Uses a lightweight item to represent a logistics request for “a certain fluid” | Uses a virtual compressed tank to represent a logistics request for “a certain fluid” |
 
 ```java
 // Fluid 2.0.0                                          // CFL git HEAD
@@ -696,7 +707,6 @@ public static ItemStack of(FluidStack fluid, int amount) {public static void set
     return stack;                                             FluidTankContent content = stack.get(AllDataComponents.FLUID_TANK_CONTENT);
 }                                                           return content != null && content.virtual();
                                                             }
-
 public static FluidStack read(ItemStack stack) {
     FluidManifestContent content = stack.get(...);       public static FluidStack getFluid(ItemStack stack) {
     if (content == null || content.fluidId() == null)        FluidTankContent content = stack.get(AllDataComponents.FLUID_TANK_CONTENT);
@@ -713,21 +723,21 @@ public static FluidRequestKey readKey(ItemStack stack) {private ItemStack create
 }
 ```
 
-Comparison conclusion: Fluid uses `FluidManifestItem` to store `fluidId`; CFL uses a `CompressedTankItem` carrying `FluidStack` with `virtual=true`. Neither is actual container inventory. Both are fluid request/display placeholder items in the logistics system, and both use `copyWithAmount(1)` or an equivalent one-unit fluid representation to denote type.
+Comparison conclusion: Fluid uses `FluidManifestItem` to store `fluidId`, while CFL uses a `CompressedTankItem` with `virtual=true` to store a `FluidStack`. Neither is an actual container inventory; both are “fluid request/display placeholder items” in the logistics system, and both use `copyWithAmount(1)` or an equivalent one-unit fluid representation to indicate the fluid type.
 
 ---
 
-### Supplemental Evidence 17: Fluid Rendering Inside Redstone Requester Slots
+### Evidence 16: Fluid Rendering Inside Redstone Requester Slots
 
 **Severity: High**
 
 | Dimension | Fluid 2.0.0 | CFL Old Version |
 | --- | --- | --- |
 | File | `mixin/client/RedstoneRequesterScreenMixin.java` | `mixin/client/RedstoneRequesterScreenMixin.java` |
-| Evidence version | `F:\mcmod\fluid\fluid-2.0.0-decompiled` | `36e9bd6` (initial commit) |
-| Topic | Rendering fluid icons in Redstone Requester ghost slots | Rendering fluid icons from virtual compressed tanks in Redstone Requester ghost slots |
+| Evidence Version | `F:\mcmod\fluid\fluid-2.0.0-decompiled` | `36e9bd6` (initial commit) |
+| Topic | Render fluid icons in Redstone Requester ghost slots | Render fluid icons from virtual compressed tanks in Redstone Requester ghost slots |
 
-**Code comparison:**
+**Code Comparison:**
 
 ```java
 // Fluid 2.0.0
@@ -769,19 +779,19 @@ protected void renderSlot(GuiGraphics graphics, Slot slot) {
 }
 ```
 
-**Similarities:** Both override the same `renderSlot(GuiGraphics, Slot)` rendering entry point, first check whether the slot is a `SlotItemHandler`, then read `menu.ghostInventory` by the same slot index, parse a fluid from the ghost item, call the identically named `FluidSlotRenderer.renderFluidSlot(graphics, slot.x, slot.y, fluid)` when non-empty, and return early; otherwise both fall back to `super.renderSlot(...)`. Fluid 2.0.0 replaces CFL's old `CompressedTankItem + isVirtual + getFluid` with `FluidManifestItem + read`, but the slot checks, ghost inventory access, non-empty fluid condition, and rendering call chain are basically the same.
+**Similarities:** Both sides override the same `renderSlot(GuiGraphics, Slot)` rendering entry point, first check whether the slot is a `SlotItemHandler`, then read `menu.ghostInventory` by the same slot index, parse the fluid from the ghost item, call the same `FluidSlotRenderer.renderFluidSlot(graphics, slot.x, slot.y, fluid)` when non-empty and return early; otherwise they fall back to `super.renderSlot(...)`. Fluid 2.0.0 replaces CFL old version’s `CompressedTankItem + isVirtual + getFluid` with `FluidManifestItem + read`, but the slot check, ghost-inventory access, non-empty fluid check, and rendering call chain remain essentially identical.
 
-### Supplemental Evidence 18: Fluid Rendering Inside Factory Panel Set-Item Screen Slots
+### Evidence 17: Fluid Rendering Inside Slots of the Factory Panel Item-Setting Screen
 
 **Severity: High**
 
 | Dimension | Fluid 2.0.0 | CFL Old Version |
 | --- | --- | --- |
 | File | `mixin/client/FactoryPanelSetItemScreenMixin.java` | `mixin/client/FactoryPanelSetItemScreenMixin.java` |
-| Evidence version | `F:\mcmod\fluid\fluid-2.0.0-decompiled` | `36e9bd6` (initial commit) |
-| Topic | Rendering fluid icons in ghost slots in the Factory Panel set-item screen | Rendering virtual fluid icons in ghost slots in the Factory Panel set-item screen |
+| Evidence Version | `F:\mcmod\fluid\fluid-2.0.0-decompiled` | `36e9bd6` (initial commit) |
+| Topic | Render fluid icons in Factory Panel item-setting ghost slots | Render virtual-fluid icons in Factory Panel item-setting ghost slots |
 
-**Code comparison:**
+**Code Comparison:**
 
 ```java
 // Fluid 2.0.0
@@ -823,19 +833,18 @@ protected void renderSlot(GuiGraphics graphics, Slot slot) {
 }
 ```
 
-**Similarities:** Both implement the same goal in the same-named mixin for `FactoryPanelSetItemScreen`: showing a fluid icon in the ghost slot used to set the filter item. The code path is the same as the Redstone Requester evidence: `SlotItemHandler -> ghostInventory.getStackInSlot(slotIndex) -> read fluid -> FluidSlotRenderer.renderFluidSlot(...) -> return -> super.renderSlot(...)`. Fluid 2.0.0 only replaces CFL's old virtual compressed tank carrier with `FluidManifestItem`; the rest of the control flow and rendering destination remain highly consistent.
-
-### Supplemental Evidence 19: Replacing Item Rendering with Fluid Rendering in StockKeeper Request List Entries
+**Similarities:** Both sides implement the same purpose in the same `FactoryPanelSetItemScreen` mixin: displaying fluid icons in the ghost slots used to set filter items. The code path is the same as in the Redstone Requester evidence: `SlotItemHandler -> ghostInventory.getStackInSlot(slotIndex) -> read fluid -> FluidSlotRenderer.renderFluidSlot(...) -> return -> super.renderSlot(...)`. Fluid 2.0.0 only replaces CFL old version’s virtual compressed tank carrier with `FluidManifestItem`; the remaining control flow and rendering target remain highly consistent.
+### Evidence 18: Replacing Item Rendering with Fluid Rendering in StockKeeper Request List Entries
 
 **Severity: High**
 
 | Dimension | Fluid 2.0.0 | CFL Old Version |
 | --- | --- | --- |
 | File | `mixin/StockKeeperRequestScreenMixin.java` | `mixin/client/StockKeeperRequestScreenMixin.java` |
-| Evidence version | `F:\mcmod\fluid\fluid-2.0.0-decompiled` | `36e9bd6` (initial commit) |
-| Topic | Redirecting `GuiGameElement.of(ItemStack)` in `renderItemEntry` to replace item icons with fluid icons | Replacing item icons with fluids from virtual compressed tanks in the same rendering entry point |
+| Evidence Version | `F:\mcmod\fluid\fluid-2.0.0-decompiled` | `36e9bd6` (initial commit) |
+| Topic | Redirect `GuiGameElement.of(ItemStack)` in `renderItemEntry` to replace item icons with fluid icons | Use fluid from virtual compressed tanks to replace item icons in the same rendering entry point |
 
-**Code comparison:**
+**Code Comparison:**
 
 ```java
 // Fluid 2.0.0
@@ -879,9 +888,340 @@ private GuiGameElement.GuiRenderBuilder fluidlogistics$redirectGuiGameElementOf(
 }
 ```
 
-**Similarities:** Both intercept the exact same `GuiGameElement.of(ItemStack)` call in `StockKeeperRequestScreen.renderItemEntry`; when a fluid entry is matched, both first draw the fluid with `FluidSlotRenderer.renderFluidSlot(...)` at `(0, 0)`, then return `GuiGameElement.of(Blocks.AIR.asItem().getDefaultInstance())` to replace the original item icon; otherwise both fall back to the original `GuiGameElement.of(itemStack)`. Fluid 2.0.0 replaces CFL old version's `fluidlogistics$isCompressedTank / fluidlogistics$cachedFluid` with `fluid$isFluidManifest / fluid$cachedFluid` and stores `GuiGraphics` in a field, but the intercepted target, control branch, fluid rendering call, and AIR placeholder replacement strategy are basically the same.
+**Similarities:** Both sides intercept exactly the same `GuiGameElement.of(ItemStack)` call inside `StockKeeperRequestScreen.renderItemEntry`. When a fluid entry matches, both first call `FluidSlotRenderer.renderFluidSlot(...)` at `(0, 0)` to draw the fluid, then return `GuiGameElement.of(Blocks.AIR.asItem().getDefaultInstance())` to replace the original item icon; otherwise they fall back to the original `GuiGameElement.of(itemStack)`. Fluid 2.0.0 replaces CFL old version’s `fluidlogistics$isCompressedTank / fluidlogistics$cachedFluid` with `fluid$isFluidManifest / fluid$cachedFluid` and caches `GuiGraphics` in a field, but the interception target, control branch, fluid-rendering call, and AIR placeholder replacement strategy are essentially identical.
 
-## 5. Architecture-Level Comparison
+## 5. Git History and Resource File Evidence
+
+This section continues evidence collection based on the git histories of the two repositories, focusing on comparing CFL’s initial commit with CreateFluid’s later commits that introduced fluid-packager-related functionality.
+
+### Evidence 19: Key Commit Timeline
+
+**Severity: High**
+
+| Project | Commit | Time | Description |
+| --- | --- | --- | --- |
+| CFL | `36e9bd6` | `2026-03-01 22:39:31 +0800` | Initial commit, already containing `FluidPackagerBlockEntity`, fluid packages, virtual compressed tanks, fluid slot rendering, Factory Panel / Redstone Requester / StockKeeper mixins, and complete models and textures |
+| CreateFluid | `21036c0` | `2026-04-21 16:23:40 +0800` | `Fluid package foundation`, first centralized addition of `FluidPackagerBlockEntity`, `FluidManifestItem`, `FluidPackageItem`, `InventorySummaryMixin`, fluid packager models, etc. |
+| CreateFluid | `4020886` | `2026-04-22 23:36:20 +0800` | `Can filler part one`, adds `FluidSlotRenderer`, `FluidSlotAmountRenderer`, `StockKeeperRequestScreenMixin`, and replaces the fluid packager textures |
+| CFL | `23075ad` | `2026-03-27 01:15:18 +0800` | Factory Panel compatibility commit predating CreateFluid; already optimized fluid amount display |
+| CFL | `37d3b4b` | `2026-04-30 22:45:50 +0800` | Refactored clipboard address setting; CreateFluid’s current working tree contains a similar clipboard address setting file |
+
+Comparison conclusion: CFL already had a complete fluid logistics workflow in its `2026-03-01` initial commit; CreateFluid only introduced highly similar fluid packaging, fluid rendering, and resource files in two later steps on `2026-04-21` and `2026-04-22`. The timeline supports the judgment that the later project reused the earlier implementation.
+
+---
+
+### Evidence 20: Fluid Packager Blockstate and Model Files Are Highly Consistent
+
+**Severity: Very High**
+
+| File | CreateFluid Commit | CFL Commit | Result |
+| --- | --- | --- | --- |
+| `assets/*/blockstates/fluid_packager.json` | `21036c0` | `36e9bd6` | Completely identical after only the namespace differs; both are 88 lines |
+| `assets/*/models/block/fluid_packager/item.json` | `21036c0` | `36e9bd6` | Completely identical after only namespace/texture namespace differs; both are 139 lines |
+| `assets/*/models/block/fluid_packager/tray.json` | `21036c0` | `36e9bd6` | Completely identical after only the namespace differs; both are 37 lines |
+| `assets/*/models/item/fluid_packager.json` | `21036c0` | `36e9bd6` | Both contain only one `parent` pointing to the corresponding namespace’s `block/fluid_packager/item` |
+
+```json
+// CreateFluid 21036c0
+"facing=east,linked=false,powered=false": {
+  "model": "fluid:block/fluid_packager/block",
+  "y": 270
+}
+
+// CFL 36e9bd6
+"facing=east,linked=false,powered=false": {
+  "model": "fluidlogistics:block/fluid_packager/block",
+  "y": 270
+}
+```
+
+```json
+// CreateFluid 21036c0
+{
+  "parent": "fluid:block/fluid_packager/item"
+}
+
+// CFL 36e9bd6
+{
+  "parent": "fluidlogistics:block/fluid_packager/item"
+}
+```
+
+Comparison conclusion: These JSON resources are not inevitable API products. In particular, the simultaneous consistency of the `facing` combinations, `linked/powered` combinations, rotation angles, model hierarchy, and Blockbench element structure constitutes resource-structure-level replication. CreateFluid later only changed the namespace from `fluidlogistics` to `fluid`, and in some files changed references to Create or Fluid’s own textures.
+
+---
+
+### Evidence 21: Fluid Packager PNG Textures Are the Same Git Blobs
+
+**Severity: Very High**
+
+Comparison targets:
+
+- CreateFluid: `4020886` (`2026-04-22`, `Can filler part one`)
+- CFL: `36e9bd6` (`2026-03-01`, initial commit)
+
+| Texture File | Whether the Git blob is identical |
+| --- | --- |
+| `packager_frame.png` | Identical: `bca68cb8b85fcf9c3753212548c5aa6dbb034561` |
+| `packager_details.png` | Identical: `a3d89c98bdd0ae73bebc02d80195daa20d1be5c6` |
+| `packager_horizontal_linked.png` | Identical: `abbe8dca2459b40214ae0679c6092039f4e91c28` |
+| `packager_horizontal_powered.png` | Identical: `b71b589d030a97ef43c9572a836f407feb4071de` |
+| `packager_horizontal_unpowered.png` | Identical: `ed1178d86da4517f008eadd21d7f09375454c8a6` |
+| `packager_iris_closed.png` | Identical: `e20213694838ba930136190db37dedd0092417f1` |
+| `packager_iris_open.png` | Identical: `f5df469fd094484475d266a8c50333800ec5dd9a` |
+| `packager_particle.png` | Identical: `8618c4a527e725f7bf97a7670479daa550a5fb71` |
+| `packager_vertical_linked.png` | Identical: `517d7b3c481635aa9aa28c56b9e2f7ab7930808b` |
+| `packager_vertical_powered.png` | Identical: `7ce0a1334c6bab45a91f19b4657dfae0b9c05d55` |
+| `packager_vertical_unpowered.png` | Identical: `cc5ab6f440111784ffdd9995968cae2b9becee23` |
+
+Comparison conclusion: The Git blobs of the PNG binary files are completely identical, meaning the contents are byte-for-byte identical. This is more direct than code-structure similarity: the fluid packager textures introduced/replaced by CreateFluid in `4020886` are not merely “stylistically similar” to the corresponding textures in CFL’s initial commit; they are the same content.
+
+---
+
+### Evidence 22: FluidSlotRenderer as a Similar Custom Slot Rendering Utility
+
+**Severity: Medium to High**
+
+| Dimension | CreateFluid | CFL |
+| --- | --- | --- |
+| File | `client/FluidSlotRenderer.java` | `render/FluidSlotRenderer.java` |
+| Evidence Version | `4020886` | `36e9bd6` |
+| Topic | Render fluid icons in GUI slots | Render fluid icons in GUI slots, with additional world-rendering support |
+
+```java
+// CreateFluid 4020886
+if (stack.isEmpty() || stack.getFluid() == Fluids.EMPTY) return;
+FluidStack renderStack = stack;
+if (stack.getAmount() == 0)
+    renderStack = stack.copyWithAmount(1);
+IClientFluidTypeExtensions clientFluid = IClientFluidTypeExtensions.of(renderStack.getFluid());
+TextureAtlasSprite sprite = Minecraft.getInstance()
+    .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+    .apply(clientFluid.getStillTexture(renderStack));
+int color = clientFluid.getTintColor(renderStack);
+float r = ((color >> 16) & 0xFF) / 255.0f;
+float g = ((color >> 8) & 0xFF) / 255.0f;
+float b = (color & 0xFF) / 255.0f;
+float a = ((color >> 24) & 0xFF) / 255.0f;
+if (a == 0) a = 1.0f;
+graphics.blit(x + 1, y + 1, 2, 14, 14, sprite, r, g, b, a);
+```
+
+```java
+// CFL 36e9bd6
+if (stack.isEmpty() || stack.getFluid() == Fluids.EMPTY) return;
+FluidStack renderStack = stack;
+if (stack.getAmount() == 0)
+    renderStack = stack.copyWithAmount(1);
+IClientFluidTypeExtensions clientFluid = IClientFluidTypeExtensions.of(renderStack.getFluid());
+TextureAtlasSprite sprite = Minecraft.getInstance()
+    .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+    .apply(clientFluid.getStillTexture(renderStack));
+int color = clientFluid.getTintColor(renderStack);
+float r = ((color >> 16) & 0xFF) / 255.0f;
+float g = ((color >> 8) & 0xFF) / 255.0f;
+float b = (color & 0xFF) / 255.0f;
+float a = ((color >> 24) & 0xFF) / 255.0f;
+if (a == 0) a = 1.0f;
+graphics.blit(x + 1, y + 1, 2, 14, 14, sprite, r, g, b, a);
+```
+
+Create source verification: In `F:\mcmod\Create-mc1.21.1-6.0.9`, no class or method named `FluidSlotRenderer`, `FluidSlotAmountRenderer`, or `renderFluidSlot` was found. Create’s `foundation/fluid/FluidRenderer.java` uses standard NeoForge/Minecraft fluid-rendering APIs such as `getStillTexture` and `getTintColor`, but it does not provide the `14x14` GUI slot icon drawing utility used here.
+
+Comparison conclusion: CreateFluid’s `renderFluidSlot` and CFL’s method of the same name are completely identical in their empty-fluid check, conversion of `amount == 0` to `copyWithAmount(1)`, retrieval of still texture, retrieval of tint color, RGBA decomposition, alpha fallback, and `graphics.blit(x + 1, y + 1, 2, 14, 14, ...)` coordinate parameters. This similarity cannot be fully attributed to a same-named method in Create because Create does not contain this utility. However, reading fluid textures/colors is a common NeoForge rendering process, so this item should be used as medium-to-high supporting evidence together with the Redstone Requester, Factory Panel, and StockKeeper call-site evidence, rather than as standalone strong evidence.
+
+---
+
+### Interim Summary: Git History and Resource Files
+
+The newly added git-history evidence strengthens the original conclusion:
+
+1. CFL’s complete fluid-packager system appeared earlier than the corresponding CreateFluid commits.
+2. In later commits, CreateFluid not only replicated code structure, but also introduced fluid packager PNG textures that are byte-for-byte identical to CFL’s.
+3. CreateFluid’s blockstate files, model JSON, GUI fluid-rendering utilities, and amount texture drawing logic form a continuous evidence chain with CFL: “resource files + rendering utilities + mixin call sites + logistics behavior.”
+
+---
+
+## 6. JEI Input Workflow Evidence
+
+### Evidence 23: JEI Fluid Ghost Target Has Matching Landing Points in Two Interfaces
+
+**Severity: Medium**
+
+| Dimension | CreateFluid | CFL |
+| --- | --- | --- |
+| File | `compat/jei/FluidGhostTarget.java`, `mixin/compat/jei/GhostIngredientHandlerMixin.java` | `compat/jei/FactoryPanelSetItemFluidGhostHandler.java`, `compat/jei/RedstoneRequesterFluidGhostHandler.java` |
+| Topic | Write JEI fluid ingredients into Create ghostInventory | Write JEI fluid ingredients into Create ghostInventory |
+
+Reason for down-weighting: The basic structure of `slotIndex + 36`, `Rect2i(guiLeft + slot.x, guiTop + slot.y, 16, 16)`, `ghostInventory.setStackInSlot`, and `GhostItemSubmitPacket` comes from Create’s native `GhostIngredientHandler`. Therefore, this portion cannot be treated as strong evidence on its own.
+
+Similarities that can still be retained:
+
+```java
+// CreateFluid
+if (ingredient.getType() == NeoForgeTypes.FLUID_STACK && gui instanceof FactoryPanelSetItemScreen) { ... }
+if (ingredient.getType() == NeoForgeTypes.FLUID_STACK && gui instanceof RedstoneRequesterScreen) { ... }
+...
+ItemStack manifest = FluidManifestItem.of(fluid, DEFAULT_FLUID_RECIPE_AMOUNT_MB);
+gui.getMenu().ghostInventory.setStackInSlot(slotIndex, manifest);
+CatnipServices.NETWORK.sendToServer(new GhostItemSubmitPacket(manifest, slotIndex));
+```
+
+```java
+// CFL
+boolean acceptsFluid = ingredient.getType() == NeoForgeTypes.FLUID_STACK;
+...
+stack = new ItemStack(AllItems.COMPRESSED_STORAGE_TANK.get());
+CompressedTankItem.setFluidVirtual(stack, fluidStack.copyWithAmount(1));
+gui.getMenu().ghostInventory.setStackInSlot(slotIndex, stack);
+CatnipServices.NETWORK.sendToServer(new GhostItemSubmitPacket(stack, slotIndex));
+```
+
+Comparison conclusion: Both sides extend `NeoForgeTypes.FLUID_STACK` on top of Create’s native item ghost target, and the targets are not arbitrary GUIs, but the same two logistics interfaces: `FactoryPanelSetItemScreen` and `RedstoneRequesterScreen`. CreateFluid uses `FluidManifestItem`; CFL uses a virtual `CompressedTankItem`; however, the chain “JEI fluid ingredient → virtual fluid request item → ghostInventory → GhostItemSubmitPacket” is consistent. Because the base framework comes from Create, this item should be treated as medium supporting evidence.
+
+---
+
+### Evidence 24: CreateFluid Git History Shows `fluid_packager` Was Renamed Wholesale to `can_filler`
+
+**Severity: High**
+
+Evidence commits:
+
+| Project | Commit | Time | Description |
+| --- | --- | --- | --- |
+| CreateFluid | `21036c0` | `2026-04-21 16:23:40 +0800` | Added `fluid_packager`, `FluidPackagerBlockEntity`, `FluidPackageItem`, and `FluidPackageContent` |
+| CreateFluid | `4020886` | `2026-04-22 23:36:20 +0800` | Added `fluid_packager` textures and rendering/StockKeeper support |
+| CreateFluid | `98b47f9` | `2026-04-23 10:23:02 +0800` | Renamed/migrated the entire `fluid_packager` system to `can_filler` / `copper_can` |
+
+Rename similarity reported by `git show --name-status --find-renames --find-copies 98b47f9`:
+
+| Git rename record | Similarity | Meaning |
+| --- | --- | --- |
+| `block/fluidpackager/FluidPackagerBlock.java` -> `block/canfiller/CanFillerBlock.java` | `R089` | Block class renamed from fluid packager to can filler |
+| `block/fluidpackager/FluidPackagerBlockEntity.java` -> `block/canfiller/CanFillerBlockEntity.java` | `R089` | Main block entity migrated with 89% similarity |
+| `mixin/PackagerBlockEntityMixin.java` -> `mixin/CanFillerBlockEntityMixin.java` | `R085` | Packager mixin renamed to can filler mixin |
+| `util/IPackagerData.java` -> `util/ICanFillerData.java` | `R077` | Address interface renamed |
+| `datacomponent/FluidPackageContent.java` -> `datacomponent/CopperCanContent.java` | `R052` | Fluid package content renamed to copper can content |
+| `assets/fluid/blockstates/fluid_packager.json` -> `assets/fluid/blockstates/can_filler.json` | `R051` | Blockstate renamed from fluid packager to can filler |
+| `models/block/fluid_packager/block.json` -> `models/block/can_filler/block.json` | `R100` | Main model migrated to the new path with complete identity |
+| `models/block/fluid_packager/block_vertical.json` -> `models/block/can_filler/block_vertical.json` | `R100` | Vertical model migrated to the new path with complete identity |
+| `models/block/fluid_packager/item.json` -> `models/block/can_filler/item.json` | `R100` | Item model migrated to the new path with complete identity |
+| `models/block/fluid_packager/tray.json` -> `models/block/can_filler/tray.json` | `R100` | Tray model migrated to the new path with complete identity |
+
+Registration-name changes in the same commit:
+
+```java
+// Before 98b47f9
+public static final BlockEntry<FluidPackagerBlock> FLUID_PACKAGER = REGISTRATE
+        .block("fluid_packager", FluidPackagerBlock::new)
+
+// After 98b47f9
+public static final BlockEntry<CanFillerBlock> CAN_FILLER = REGISTRATE
+        .block("can_filler", CanFillerBlock::new)
+```
+
+```java
+// Before 98b47f9
+public static final ItemEntry<FluidPackageItem> FLUID_PACKAGE = REGISTRATE
+    .item("fluid_package", FluidPackageItem::new)
+
+// After 98b47f9
+public static final ItemEntry<CopperCanItem> COPPER_CAN = REGISTRATE
+    .item("copper_can", CopperCanItem::new)
+```
+
+`FluidPackageContent` and the renamed `CopperCanContent` retain the same data shape:
+
+```java
+// Before renaming
+public record FluidPackageContent(FluidStack fluid, int capacity) {
+    public static final int DEFAULT_CAPACITY = 10000;
+    FluidStack.CODEC.fieldOf("fluid")
+    Codec.INT.fieldOf("capacity")
+}
+
+// After renaming
+public record CopperCanContent(FluidStack fluid, int capacity) {
+    public static final int DEFAULT_CAPACITY = 10000;
+    FluidStack.CODEC.fieldOf("fluid")
+    Codec.INT.fieldOf("capacity")
+}
+```
+
+Comparison conclusion: CreateFluid did not initially appear as an independently designed `CanFiller/CopperCan` system. The git history shows that it first introduced `FluidPackager/FluidPackage` on `2026-04-21`, directly corresponding to CFL’s `FluidPackager/FluidPackage` naming and resource system; only afterward, on `2026-04-23`, was it batch-renamed to `CanFiller/CopperCan`. Multiple model files are `R100`, and the core block entity is `R089`, indicating that this was a wholesale renaming/refactoring of the previous day’s fluid packager implementation rather than an independent implementation from scratch.
+
+---
+
+### Evidence 25: The `FluidPackageItem` Package-Item Skeleton Is Consistent and Was Later Renamed to `CopperCanItem`
+
+**Severity: Medium to High**
+
+| Dimension | CreateFluid | CFL |
+| --- | --- | --- |
+| File | `item/FluidPackageItem.java` | `item/FluidPackageItem.java` |
+| Evidence Version | `21036c0` | `36e9bd6` |
+| Later Evolution | `98b47f9` deletes `FluidPackageItem` and adds `CopperCanItem` | Continues to keep `FluidPackageItem` |
+
+```java
+// CreateFluid 21036c0
+public class FluidPackageItem extends PackageItem {
+    public static final PackageStyle FLUID_STYLE =
+        new PackageStyles.PackageStyle("rare_creeper", 12, 10, 21f, true);
+
+    public FluidPackageItem(Properties properties) {
+        super(properties, FLUID_STYLE);
+        PackageStyles.ALL_BOXES.remove(this);
+        PackageStyles.RARE_BOXES.remove(this);
+    }
+}
+```
+
+```java
+// CFL 36e9bd6
+public class FluidPackageItem extends PackageItem {
+    public static final PackageStyle FLUID_STYLE =
+        new PackageStyle("rare_fluid", 12, 10, 21f, true);
+
+    public FluidPackageItem(Properties properties) {
+        super(properties, FLUID_STYLE);
+        PackageStyles.ALL_BOXES.remove(this);
+        PackageStyles.RARE_BOXES.remove(this);
+    }
+}
+```
+
+CreateFluid migrated this skeleton to `CopperCanItem` in `98b47f9`:
+
+```java
+// CreateFluid 98b47f9
+public class CopperCanItem extends PackageItem {
+    public static final PackageStyle COPPER_CAN_STYLE =
+        new PackageStyles.PackageStyle("rare_creeper", 12, 10, 21f, true);
+
+    public CopperCanItem(Properties properties) {
+        super(properties, COPPER_CAN_STYLE);
+        PackageStyles.ALL_BOXES.remove(this);
+        PackageStyles.RARE_BOXES.remove(this);
+    }
+}
+```
+
+Comparison conclusion: Neither side is an ordinary `Item`; both disguise the fluid container as Create’s `PackageItem`, use the same `PackageStyle` parameters `12, 10, 21f, true`, and remove it from `PackageStyles.ALL_BOXES` and `PackageStyles.RARE_BOXES` to prevent it from participating in regular package-style lists. CreateFluid later renamed `FluidPackageItem` to `CopperCanItem`, but retained the same `PackageItem` skeleton and style handling. This evidence is weaker than byte-for-byte textures and `R100` model renames, but it strengthens the historical chain in which the “fluid package object” was later renamed to a copper can.
+
+---
+
+### Interim Summary: JEI and Renaming Workflow
+
+Under the current evidence boundary, only committed history and non-working-tree temporary-file evidence are retained:
+
+1. The basic writing pattern of JEI ghost targets comes from Create and should be down-weighted; however, both sides extend it to the same two logistics interfaces, so it remains usable as combined evidence.
+2. Binary resource evidence is further strengthened: in addition to the ten listed packager textures, `packager_details.png` is also the same Git blob as in CFL’s initial commit.
+3. CreateFluid’s git history shows that `fluid_packager/fluid_package` was renamed wholesale to `can_filler/copper_can` within two days after being introduced; multiple model files are `R100`, and the core block entity is `R089`.
+4. The `PackageItem` skeleton of `FluidPackageItem` matches CFL’s initial commit and was migrated to `CopperCanItem` in `98b47f9`, strengthening the “rename-style refactoring” chain.
+
+---
+
+## 7. Architectural-Level Comparison
 
 | Dimension | Fluid 2.0.0 | CFL |
 |------|-------------|-----|
@@ -891,21 +1231,24 @@ private GuiGameElement.GuiRenderBuilder fluidlogistics$redirectGuiGameElementOf(
 | Goggle information | `CanFillerGoggleInfo` | `PackagerGoggleInfo` |
 | Mixin prefix | `fluid$` | `fluidlogistics$` |
 
-Fluid 2.0.0's main reproduction approaches still include:
+Fluid 2.0.0’s main replication methods still include:
 
-1. Method-splitting copy: splitting CFL's inline logic into multiple private helper methods.
-2. Rename-based replacement: replacing `CompressedTankItem` with `FluidManifestItem`, and replacing the `fluidlogistics$` prefix with `fluid$`.
-3. Inheritance-based alternate implementation: simplifying the structure by extending Create's `PackagerBlockEntity` while retaining the core logistics process.
-4. Simplified reproduction: preserving only the core paths related to CanFiller and Factory Panel interaction.
+1. Method-splitting copy: splitting CFL’s inline logic into multiple private helper methods.
+2. Rename-style replacement: replacing `CompressedTankItem` with `FluidManifestItem`, and replacing the `fluidlogistics$` prefix with `fluid$`.
+3. Inheritance-based alternative implementation: simplifying the structure by extending Create’s `PackagerBlockEntity` while retaining the core logistics workflow.
+4. Simplified replication: keeping only the core paths related to CanFiller and Factory Panel interaction.
 
 ---
 
-## 6. Overall Judgment
+## 8. Overall Judgment
 
-| Strength | Count | Representative Files |
-|------|------|----------|
-| Very high | 2 | `ClipboardAddressUtil`, `ClipboardSetAddressPacket` |
-| High | 13 | `InventorySummaryMixin`, `FactoryPanelBehaviourMixin`, `CanFillerBlockEntityMixin`, `FactoryPanelBlockEntityMixin`, `CanFillerGoggleInfo`, `ICanFillerData`, `StockKeeperRequestScreenMixin`, `CanFillerBlockEntity` packaging/unpacking, `FluidPackagerBlockEntity` packaging/unpacking, `RedstoneRequesterScreenMixin` slot rendering, `FactoryPanelSetItemScreenMixin` slot rendering, `StockKeeperRequestScreenMixin` entry icon replacement |
-| Medium | 4 | `FactoryPanelScreenMixin`, `FluidAmountHelper`, `FluidValueBoxRenderer`, virtual fluid request items |
+| Strength | Representative Evidence | Summary |
+|------|----------|------|
+| Very High | Evidence 1, 2, 20, 21 | Clipboard address logic is highly isomorphic; fluid packager blockstate/model JSON structures are consistent; PNG texture Git blobs are byte-for-byte identical |
+| High | Evidence 3, 4, 5, 6, 7, 8, 9, 13, 14, 19, 24 | Inventory statistics, Factory Panel, address attachment, Goggle, StockKeeper, packaging/unpacking state machine, timeline, and wholesale rename/migration form a continuous evidence chain |
+| Medium to High | Evidence 22, 25 | Custom fluid slot rendering utility and the `FluidPackageItem`/`CopperCanItem` skeleton can serve as supporting evidence |
+| Medium | Evidence 10, 11, 12, 15, 16, 17, 18, 23 | Similarities in amount formatting, ValueBox/interface rendering, virtual fluid request items, and JEI input workflow, but some base structures come from Create or NeoForge and should be down-weighted |
 
-Final judgment: In key features including fluid packaging/unpacking, virtual fluid request items, fluid rendering in Redstone Requester and Factory Panel ghost slots, fluid entry replacement in the StockKeeper request list, clipboard addresses, Factory Panel restocking, and ValueBox fluid rendering, Fluid 2.0.0 shows systematic code-structure similarity with CFL. The similarities are not limited to a single utility method or UI constant; they form a continuous implementation path across block entities, network packets, mixin injections, UI rendering, and address interfaces.
+Final judgment: In key functions including fluid packaging/unpacking, virtual fluid request items, fluid rendering in Redstone Requester and Factory Panel ghost slots, replacement of fluid entries in the StockKeeper request list, clipboard addresses, Factory Panel restocking, ValueBox fluid rendering, resource files, and the historical renaming chain, Fluid 2.0.0 shows systematic code-structure similarity with CFL. The similarities are not isolated utility methods or UI constants, but a continuous implementation path spanning block entities, network packets, mixin injections, interface rendering, resource files, address interfaces, and git history.
+
+---
