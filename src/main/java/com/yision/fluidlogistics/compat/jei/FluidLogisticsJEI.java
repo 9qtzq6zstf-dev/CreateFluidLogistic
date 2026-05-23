@@ -7,7 +7,6 @@ import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequester
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.client.JeiRuntimeHolder;
-import com.yision.fluidlogistics.portableticker.PortableStockTickerScreen;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -32,7 +31,6 @@ public class FluidLogisticsJEI implements IModPlugin {
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        registration.addUniversalRecipeTransferHandler(new PortableStockTickerTransferHandler());
     }
 
     @Override
@@ -40,7 +38,6 @@ public class FluidLogisticsJEI implements IModPlugin {
         registration.addGhostIngredientHandler(FactoryPanelSetItemScreen.class, FactoryPanelSetItemFluidGhostHandler.INSTANCE);
         registration.addGhostIngredientHandler(RedstoneRequesterScreen.class, RedstoneRequesterFluidGhostHandler.INSTANCE);
         registration.addGuiContainerHandler(StockKeeperRequestScreen.class, new StockKeeperRequestFluidGuiHandler());
-        registration.addGuiContainerHandler(PortableStockTickerScreen.class, new PortableStockTickerGuiHandler());
     }
 
     @Override

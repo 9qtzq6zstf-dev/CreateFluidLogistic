@@ -25,13 +25,7 @@ public enum FluidLogisticsPackets implements BasePacketPayload.PacketTypeProvide
     HAND_POINTER_CLEAR_CLIPBOARD_ADDRESS(HandPointerClearClipboardAddressPacket.class, HandPointerClearClipboardAddressPacket.STREAM_CODEC),
     HAND_POINTER_PACKAGER_TOGGLE(HandPointerPackagerTogglePacket.class, HandPointerPackagerTogglePacket.STREAM_CODEC),
     HAND_POINTER_MODE_ENTERED(HandPointerModeEnteredPacket.class, HandPointerModeEnteredPacket.STREAM_CODEC),
-    SMART_FAUCET_DRIP_PARTICLE(SmartFaucetDripParticlePacket.class, SmartFaucetDripParticlePacket.STREAM_CODEC),
-    PORTABLE_STOCK_TICKER_OPEN(PortableStockTickerOpenPacket.class, PortableStockTickerOpenPacket.STREAM_CODEC),
-    PORTABLE_STOCK_TICKER_STOCK_REQUEST(PortableStockTickerStockRequestPacket.class, PortableStockTickerStockRequestPacket.STREAM_CODEC),
-    PORTABLE_STOCK_TICKER_STOCK_RESPONSE(PortableStockTickerStockResponsePacket.class, PortableStockTickerStockResponsePacket.STREAM_CODEC),
-    PORTABLE_STOCK_TICKER_ORDER_REQUEST(PortableStockTickerOrderRequestPacket.class, PortableStockTickerOrderRequestPacket.STREAM_CODEC),
-    PORTABLE_STOCK_TICKER_SAVE_ADDRESS(PortableStockTickerSaveAddressPacket.class, PortableStockTickerSaveAddressPacket.STREAM_CODEC),
-    PORTABLE_STOCK_TICKER_HIDDEN_CATEGORIES(PortableStockTickerHiddenCategoriesPacket.class, PortableStockTickerHiddenCategoriesPacket.STREAM_CODEC);
+    SMART_FAUCET_DRIP_PARTICLE(SmartFaucetDripParticlePacket.class, SmartFaucetDripParticlePacket.STREAM_CODEC);
 
     private final CatnipPacketRegistry.PacketType<?> type;
 

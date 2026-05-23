@@ -11,7 +11,6 @@ import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.item.CompressedTankItem;
 import com.yision.fluidlogistics.item.FluidPackageItem;
 import com.yision.fluidlogistics.item.HandPointerItem;
-import com.yision.fluidlogistics.item.PortableStockTickerItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
@@ -50,13 +49,6 @@ public class AllItems {
             .item("hand_pointer", HandPointerItem::new)
             .properties(p -> p.stacksTo(1))
             .tag(Items.TOOLS)
-            .model(AssetLookup.existingItemModel())
-            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
-            .register();
-
-    public static final ItemEntry<PortableStockTickerItem> PORTABLE_STOCK_TICKER = REGISTRATE
-            .item("portable_stock_ticker", PortableStockTickerItem::new)
-            .properties(p -> p.stacksTo(1))
             .model(AssetLookup.existingItemModel())
             .setData(ProviderType.LANG, NonNullBiConsumer.noop())
             .register();

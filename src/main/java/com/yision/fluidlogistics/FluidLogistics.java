@@ -7,6 +7,7 @@ import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
 import net.createmod.catnip.lang.FontHelper;
 import com.yision.fluidlogistics.config.Config;
+import com.yision.fluidlogistics.block.WaterContainingCopperCasing.WaterContainingCopperCasingFluidHandler;
 import com.yision.fluidlogistics.block.FluidPackager.FluidPackagerBlockEntity;
 import com.yision.fluidlogistics.block.FluidTransporter.FluidTransporterBlockEntity;
 import com.yision.fluidlogistics.block.HorizontalMultiFluidTank.HorizontalMultiFluidTankBlockEntity;
@@ -25,7 +26,6 @@ import com.yision.fluidlogistics.item.CompressedTankItem;
 import com.yision.fluidlogistics.item.CompressedTankTooltipModifier;
 import com.yision.fluidlogistics.registry.AllDataComponents;
 import com.yision.fluidlogistics.registry.AllItems;
-import com.yision.fluidlogistics.registry.AllMenuTypes;
 import com.yision.fluidlogistics.registry.AllConditionCodecs;
 import com.yision.fluidlogistics.registry.AllFluidAttributeTypes;
 import com.yision.fluidlogistics.config.FeatureToggle;
@@ -47,7 +47,6 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -90,7 +89,6 @@ public class FluidLogistics {
         AllBlocks.register();
         AllBlockEntities.register();
         AllItems.register();
-        AllMenuTypes.register();
         FluidLogisticsArmInteractionPointTypes.ARM_INTERACTION_POINT_TYPES.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -128,6 +126,9 @@ public class FluidLogistics {
         MultiFluidAccessPortBlockEntity.registerCapabilities(event);
         SmartHopperBlockEntity.registerCapabilities(event);
         InfiniteFluidTankBlockEntity.registerCapabilities(event);
+        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, blockEntity, side) -> WaterContainingCopperCasingFluidHandler.INSTANCE,
+                AllBlocks.WATER_CONTAINING_COPPER_CASING.get());
         event.registerItem(Capabilities.FluidHandler.ITEM,
                 (stack, context) -> new CompressedTankFluidHandler(stack),
                 AllItems.COMPRESSED_STORAGE_TANK.get());
@@ -152,19 +153,6 @@ public class FluidLogistics {
             }
         }
 
-        if (!ModList.get().isLoaded("create_mobile_packages") && !ModList.get().isLoaded("cmpackagecouriers")) {
-            ItemStack tickerItem = event.getSearchEntries().stream()
-                    .filter(stack -> stack.getItem() == AllItems.PORTABLE_STOCK_TICKER.asItem())
-                    .findFirst()
-                    .orElseGet(() -> event.getParentEntries().stream()
-                            .filter(stack -> stack.getItem() == AllItems.PORTABLE_STOCK_TICKER.asItem())
-                            .findFirst()
-                            .orElse(ItemStack.EMPTY));
-
-            if (!tickerItem.isEmpty()) {
-                event.remove(tickerItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            }
-        }
     }
 
     public static ResourceLocation asResource(String path) {
