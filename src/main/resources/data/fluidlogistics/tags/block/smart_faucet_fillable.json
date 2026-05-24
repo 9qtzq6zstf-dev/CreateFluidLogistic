@@ -1,5 +1,6 @@
 {
   "values": [
-    "create:basin"
+    "create:basin",
+    "fluidlogistics:smart_hopper"
   ]
 }

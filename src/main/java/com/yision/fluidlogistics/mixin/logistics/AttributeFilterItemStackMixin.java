@@ -31,14 +31,12 @@ public abstract class AttributeFilterItemStackMixin extends FilterItemStack {
         if (attributeTests.isEmpty())
             return super.test(world, stack, matchNBT);
 
-        boolean hasFluidAttribute = false;
         for (Pair<ItemAttribute, Boolean> test : attributeTests) {
             ItemAttribute itemAttribute = test.getFirst();
             boolean inverted = test.getSecond();
 
             if (!(itemAttribute instanceof FluidAttribute attribute))
                 continue;
-            hasFluidAttribute = true;
 
             boolean matches = attribute.appliesTo(stack, world) != inverted;
 
@@ -55,9 +53,6 @@ public abstract class AttributeFilterItemStackMixin extends FilterItemStack {
                 }
             }
         }
-
-        if (!hasFluidAttribute)
-            return whitelistMode == AttributeFilterWhitelistMode.BLACKLIST;
 
         return switch (whitelistMode) {
             case BLACKLIST, WHITELIST_CONJ -> true;

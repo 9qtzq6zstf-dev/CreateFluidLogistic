@@ -11,7 +11,6 @@ import java.util.EnumMap;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -55,7 +54,6 @@ public class FluidTransporterBlockEntity extends SmartBlockEntity {
         behaviours.add(internalTank = SmartFluidTankBehaviour.single(this, INTERNAL_BUFFER_CAPACITY));
         behaviours.add(filtering = new FilteringBehaviour(this, new FluidTransporterFilterSlotPositioning()).forFluids()
             .withCallback($ -> notifyUpdate()));
-        filtering.setLabel(Component.translatable("block.fluidlogistics.fluid_transporter.filter").copy());
     }
 
     @Override

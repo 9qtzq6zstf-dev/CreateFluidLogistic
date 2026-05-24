@@ -13,6 +13,9 @@ import net.minecraft.resources.ResourceLocation;
 public class FluidLogisticsPonderPlugin implements PonderPlugin {
 
     public static final ResourceLocation HIGH_LOGISTICS = Create.asResource("high_logistics");
+    public static final ResourceLocation LOGISTICS = Create.asResource("logistics");
+    public static final ResourceLocation FLUIDS = Create.asResource("fluids");
+    public static final ResourceLocation ARM_TARGETS = Create.asResource("arm_targets");
 
     @Override
     public String getModId() {
@@ -26,6 +29,20 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
         registration.forComponents(AllBlocks.FLUID_PACKAGER)
                 .addStoryBoard(FluidPackagerScenes.FLUID_PACKAGER, FluidPackagerScenes::fluidPackager)
                 .addStoryBoard(FluidPackagerScenes.FLUID_PACKAGER_ADDRESS, FluidPackagerScenes::fluidPackagerAddress);
+
+        registration.forComponents(AllBlocks.SMART_FAUCET)
+                .addStoryBoard(SmartFaucetScenes.SMART_FAUCET, SmartFaucetScenes::smartFaucet);
+
+        registration.forComponents(AllBlocks.MULTI_FLUID_ACCESS_PORT)
+                .addStoryBoard(MultiFluidAccessPortScenes.MULTI_FLUID_ACCESS_PORT,
+                        MultiFluidAccessPortScenes::multiFluidAccessPort);
+
+        registration.forComponents(AllBlocks.SMART_HOPPER)
+                .addStoryBoard(SmartHopperScenes.SMART_HOPPER, SmartHopperScenes::smartHopper);
+
+        registration.forComponents(AllBlocks.FLUID_TRANSPORTER)
+                .addStoryBoard(FluidTransporterScenes.FLUID_TRANSPORTER,
+                        FluidTransporterScenes::fluidTransporter);
     }
 
     @Override
@@ -34,5 +51,17 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 
         registration.addToTag(HIGH_LOGISTICS)
                 .add(AllBlocks.FLUID_PACKAGER);
+
+        registration.addToTag(LOGISTICS)
+                .add(AllBlocks.SMART_HOPPER);
+
+        registration.addToTag(FLUIDS)
+                .add(AllBlocks.SMART_FAUCET)
+                .add(AllBlocks.MULTI_FLUID_ACCESS_PORT)
+                .add(AllBlocks.SMART_HOPPER)
+                .add(AllBlocks.FLUID_TRANSPORTER);
+
+        registration.addToTag(ARM_TARGETS)
+                .add(AllBlocks.SMART_HOPPER);
     }
 }

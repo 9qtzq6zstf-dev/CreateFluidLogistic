@@ -10,7 +10,6 @@ import com.tterrag.registrate.util.entry.BlockEntry;
 import com.tterrag.registrate.util.nullness.NonNullBiConsumer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Blocks;
@@ -21,7 +20,6 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
 import com.yision.fluidlogistics.block.FluidPackager.FluidPackagerBlock;
 import com.yision.fluidlogistics.block.FluidPackager.FluidPackagerGenerator;
 import com.yision.fluidlogistics.block.FluidTransporter.FluidTransporterBlock;
@@ -40,11 +38,13 @@ import com.yision.fluidlogistics.block.SmartHopper.SmartHopperGenerator;
 import com.yision.fluidlogistics.block.FluidPump.FluidPumpBlock;
 import com.yision.fluidlogistics.block.FluidPump.FluidPumpGenerator;
 import com.yision.fluidlogistics.block.InfiniteFluidTank.InfiniteFluidTankBlock;
+import com.yision.fluidlogistics.block.WaterContainingCopperCasing.WaterContainingCopperCasingBlock;
 import com.yision.fluidlogistics.block.WaterproofCardboardBlock;
 import com.yision.fluidlogistics.block.HorizontalMultiFluidTank.HorizontalMultiFluidTankGenerator;
 import com.yision.fluidlogistics.item.HorizontalMultiFluidTankItem;
 import com.yision.fluidlogistics.item.InfiniteFluidTankItem;
 import com.yision.fluidlogistics.item.MultiFluidTankItem;
+import com.yision.fluidlogistics.block.WaterContainingCopperCasing.WaterContainingCopperCasingItem;
 
 import static com.simibubi.create.api.contraption.storage.fluid.MountedFluidStorageType.mountedFluidStorage;
 import static com.simibubi.create.foundation.data.TagGen.axeOnly;
@@ -195,8 +195,7 @@ public class AllBlocks {
             .setData(ProviderType.LANG, NonNullBiConsumer.noop())
             .addLayer(() -> RenderType::cutoutMipped)
             .blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
-                prov.models().getBuilder(ctx.getName())
-                    .parent(new ModelFile.UncheckedModelFile(createLoc("block/creative_single_window")))))
+                prov.models().getExistingFile(prov.modLoc("block/infinite_fluid_tank"))))
             .loot((loot, block) -> loot.add(block, LootTable.lootTable()
                 .withPool(loot.applyExplosionCondition(block, LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1.0F))
@@ -209,10 +208,22 @@ public class AllBlocks {
             .build()
             .register();
 
-    public static void register() {
-    }
+    public static final BlockEntry<WaterContainingCopperCasingBlock> WATER_CONTAINING_COPPER_CASING =
+        REGISTRATE.block("water_containing_copper_casing", WaterContainingCopperCasingBlock::new)
+            .initialProperties(SharedProperties::copperMetal)
+            .properties(p -> p.noOcclusion().isRedstoneConductor(($1, $2, $3) -> false))
+            .properties(p -> p.mapColor(MapColor.TERRACOTTA_LIGHT_GRAY).sound(SoundType.COPPER))
+            .transform(pickaxeOnly())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .addLayer(() -> RenderType::cutoutMipped)
+            .blockstate((ctx, prov) -> prov.simpleBlock(ctx.get(),
+                prov.models().getExistingFile(prov.modLoc("block/water_containing_copper_casing"))))
+            .item(WaterContainingCopperCasingItem::new)
+            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
+                prov.modLoc("block/water_containing_copper_casing")))
+            .build()
+            .register();
 
-    private static ResourceLocation createLoc(String path) {
-        return ResourceLocation.fromNamespaceAndPath("create", path);
+    public static void register() {
     }
 }

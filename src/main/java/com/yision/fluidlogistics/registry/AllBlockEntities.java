@@ -21,6 +21,7 @@ import com.yision.fluidlogistics.block.SmartFaucet.SmartFaucetBlockEntity;
 import com.yision.fluidlogistics.block.SmartFaucet.SmartFaucetRenderer;
 import com.yision.fluidlogistics.block.SmartHopper.SmartHopperBlockEntity;
 import com.yision.fluidlogistics.block.SmartHopper.SmartHopperRenderer;
+import com.yision.fluidlogistics.block.WaterContainingCopperCasing.WaterContainingCopperCasingBlock;
 
 import static com.yision.fluidlogistics.FluidLogistics.REGISTRATE;
 
@@ -80,6 +81,12 @@ public class AllBlockEntities {
             .blockEntity("infinite_fluid_tank", InfiniteFluidTankBlockEntity::new)
             .validBlocks(AllBlocks.INFINITE_FLUID_TANK)
             .renderer(() -> InfiniteFluidTankRenderer::new)
+            .register();
+
+    public static final BlockEntityEntry<WaterContainingCopperCasingBlock.Entity> WATER_CONTAINING_COPPER_CASING = REGISTRATE
+            .blockEntity("water_containing_copper_casing", WaterContainingCopperCasingBlock.Entity::new)
+            .validBlocks(AllBlocks.WATER_CONTAINING_COPPER_CASING)
+            .renderer(() -> WaterContainingCopperCasingBlock.Renderer::new)
             .register();
 
     public static void register() {

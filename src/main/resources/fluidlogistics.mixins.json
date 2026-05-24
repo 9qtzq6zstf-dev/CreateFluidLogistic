@@ -11,6 +11,7 @@
         "fluids.FluidPropagatorMixin",
         "kinetics.BeltInventoryMixin",
         "kinetics.BeltProcessingBehaviourMixin",
+        "kinetics.SawBlockEntityMixin",
         "logistics.AttributeFilterItemStackMixin",
         "logistics.FactoryPanelBehaviourLegacyLinkCleanupMixin",
         "logistics.FactoryPanelBehaviourMixin",

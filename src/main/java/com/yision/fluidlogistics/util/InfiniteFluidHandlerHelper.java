@@ -3,7 +3,9 @@ package com.yision.fluidlogistics.util;
 import com.simibubi.create.content.fluids.tank.CreativeFluidTankBlockEntity.CreativeSmartFluidTank;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.yision.fluidlogistics.block.InfiniteFluidTank.InfiniteFluidTankBlockEntity.InfiniteSmartFluidTank;
+import com.yision.fluidlogistics.block.WaterContainingCopperCasing.WaterContainingCopperCasingFluidHandler;
 
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
@@ -19,6 +21,9 @@ public final class InfiniteFluidHandlerHelper {
 	public static boolean isInfiniteSource(IFluidHandler handler, FluidStack fluid) {
 		if (fluid.isEmpty())
 			return false;
+
+		if (handler instanceof WaterContainingCopperCasingFluidHandler)
+			return fluid.getFluid() == Fluids.WATER;
 
 		if (handler instanceof CreativeSmartFluidTank)
 			return hasSameContainedFluid(handler, fluid);
