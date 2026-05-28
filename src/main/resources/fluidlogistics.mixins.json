@@ -7,7 +7,6 @@
     "mixins": [
         "accessor.ArmBlockEntityAccessor",
         "accessor.StockTickerBlockEntityAccessor",
-        "basin.BasinBlockEntityMixin",
         "fluids.FluidPropagatorMixin",
         "kinetics.BeltInventoryMixin",
         "kinetics.BeltProcessingBehaviourMixin",
@@ -33,7 +32,6 @@
         "client.ChainConveyorRendererMixin",
         "client.ChainConveyorVisualMixin",
         "client.CraftableBigItemStackMixin",
-        "client.BasinRendererMixin",
         "client.FactoryPanelBehaviourClientMixin",
         "client.FactoryPanelScreenMixin",
         "client.FactoryPanelSetItemScreenMixin",

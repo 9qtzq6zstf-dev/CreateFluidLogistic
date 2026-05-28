@@ -39,8 +39,12 @@ import com.yision.fluidlogistics.block.FluidPump.FluidPumpBlock;
 import com.yision.fluidlogistics.block.FluidPump.FluidPumpGenerator;
 import com.yision.fluidlogistics.block.InfiniteFluidTank.InfiniteFluidTankBlock;
 import com.yision.fluidlogistics.block.WaterContainingCopperCasing.WaterContainingCopperCasingBlock;
+import com.yision.fluidlogistics.block.CopperBasin.CopperBasinBlock;
 import com.yision.fluidlogistics.block.WaterproofCardboardBlock;
 import com.yision.fluidlogistics.block.HorizontalMultiFluidTank.HorizontalMultiFluidTankGenerator;
+import com.simibubi.create.content.processing.basin.BasinGenerator;
+import com.simibubi.create.content.processing.basin.BasinMovementBehaviour;
+import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.yision.fluidlogistics.item.HorizontalMultiFluidTankItem;
 import com.yision.fluidlogistics.item.InfiniteFluidTankItem;
 import com.yision.fluidlogistics.item.MultiFluidTankItem;
@@ -221,6 +225,22 @@ public class AllBlocks {
             .item(WaterContainingCopperCasingItem::new)
             .model((ctx, prov) -> prov.withExistingParent(ctx.getName(),
                 prov.modLoc("block/water_containing_copper_casing")))
+            .build()
+            .register();
+
+    public static final BlockEntry<CopperBasinBlock> COPPER_BASIN =
+        REGISTRATE.block("copper_basin", CopperBasinBlock::new)
+            .initialProperties(SharedProperties::stone)
+            .properties(p -> p.noOcclusion()
+                .mapColor(MapColor.COLOR_GRAY)
+                .sound(SoundType.NETHERITE_BLOCK))
+            .transform(pickaxeOnly())
+            .setData(ProviderType.LANG, NonNullBiConsumer.noop())
+            .blockstate(new BasinGenerator()::generate)
+            .addLayer(() -> RenderType::cutoutMipped)
+            .onRegister(b -> MovementBehaviour.REGISTRY.register(b, new BasinMovementBehaviour()))
+            .item()
+            .model(AssetLookup.customBlockItemModel("_", "block"))
             .build()
             .register();
 

@@ -15,6 +15,7 @@ import com.yision.fluidlogistics.block.InfiniteFluidTank.InfiniteFluidTankBlockE
 import com.yision.fluidlogistics.block.MultiFluidAccessPort.MultiFluidAccessPortBlockEntity;
 import com.yision.fluidlogistics.block.MultiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.block.SmartHopper.SmartHopperBlockEntity;
+import com.yision.fluidlogistics.block.CopperBasin.CopperBasinBlockEntity;
 import com.yision.fluidlogistics.advancement.AllTriggers;
 import com.yision.fluidlogistics.network.FluidLogisticsPackets;
 import com.yision.fluidlogistics.registry.FluidLogisticsArmInteractionPointTypes;
@@ -126,6 +127,7 @@ public class FluidLogistics {
         MultiFluidAccessPortBlockEntity.registerCapabilities(event);
         SmartHopperBlockEntity.registerCapabilities(event);
         InfiniteFluidTankBlockEntity.registerCapabilities(event);
+        CopperBasinBlockEntity.registerCapabilities(event);
         event.registerBlock(Capabilities.FluidHandler.BLOCK,
                 (level, pos, state, blockEntity, side) -> WaterContainingCopperCasingFluidHandler.INSTANCE,
                 AllBlocks.WATER_CONTAINING_COPPER_CASING.get());
