@@ -53,6 +53,9 @@ public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IH
 			Capabilities.FluidHandler.BLOCK,
 			AllBlockEntities.INFINITE_FLUID_TANK.get(),
 			(be, context) -> {
+				if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.INFINITE_FLUID_TANK)) {
+					return null;
+				}
 				if (be.fluidCapability == null)
 					be.refreshCapability();
 				return be.fluidCapability;
@@ -73,6 +76,11 @@ public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IH
 	@Override
 	public void tick() {
 		super.tick();
+
+		if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.INFINITE_FLUID_TANK)) {
+			return;
+		}
+
 		if (syncCooldown > 0) {
 			syncCooldown--;
 			if (syncCooldown == 0 && queuedSync)

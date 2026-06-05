@@ -5,6 +5,7 @@ import com.simibubi.create.content.fluids.pipes.FluidPipeBlock;
 import com.simibubi.create.content.fluids.pump.PumpBlock;
 import com.simibubi.create.content.kinetics.base.DirectionalAxisKineticBlock;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
+import com.yision.fluidlogistics.config.FeatureToggle;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 
 import net.createmod.catnip.data.Iterate;
@@ -205,6 +206,9 @@ public class FluidPumpBlock extends PumpBlock {
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.FLUID_PUMP)) {
+			return null;
+		}
 		BlockState toPlace = ProperWaterloggedBlock.withWater(context.getLevel(), defaultBlockState(),
 			context.getClickedPos());
 		Direction targetOutputDirection = getTargetFluidDirection(context);

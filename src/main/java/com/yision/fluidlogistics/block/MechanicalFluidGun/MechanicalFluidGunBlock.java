@@ -5,6 +5,7 @@ import com.simibubi.create.content.kinetics.base.KineticBlock;
 import com.simibubi.create.content.kinetics.simpleRelays.ICogWheel;
 import com.simibubi.create.foundation.block.IBE;
 import com.yision.fluidlogistics.FluidLogistics;
+import com.yision.fluidlogistics.config.FeatureToggle;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 
 import net.minecraft.core.BlockPos;
@@ -56,6 +57,9 @@ public class MechanicalFluidGunBlock extends KineticBlock implements IBE<Mechani
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return null;
+		}
 		Direction mountFace = context.getClickedFace();
 		Direction playerDir = context.getHorizontalDirection().getOpposite();
 		Direction facing = MechanicalFluidGunMount.resolveFacing(mountFace, playerDir);

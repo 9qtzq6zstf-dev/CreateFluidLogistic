@@ -3,6 +3,7 @@ package com.yision.fluidlogistics.network;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.logistics.packager.PackagerBlock;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.util.IPackagerOverrideData;
 import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.net.base.ServerboundPacketPayload;
@@ -47,6 +48,10 @@ public record HandPointerClearClipboardAddressPacket(BlockPos pos) implements Se
 
     @Override
     public void handle(ServerPlayer player) {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return;
+        }
+
         if (!player.mayBuild()) {
             return;
         }

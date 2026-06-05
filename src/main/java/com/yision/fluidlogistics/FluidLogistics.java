@@ -37,6 +37,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -134,10 +135,20 @@ public class FluidLogistics {
         InfiniteFluidTankBlockEntity.registerCapabilities(event);
         CopperBasinBlockEntity.registerCapabilities(event);
         event.registerBlock(Capabilities.FluidHandler.BLOCK,
-                (level, pos, state, blockEntity, side) -> WaterContainingCopperCasingFluidHandler.INSTANCE,
+                (level, pos, state, blockEntity, side) -> {
+                    if (!FeatureToggle.isEnabled(FeatureToggle.WATER_CONTAINING_COPPER_CASING)) {
+                        return null;
+                    }
+                    return WaterContainingCopperCasingFluidHandler.INSTANCE;
+                },
                 AllBlocks.WATER_CONTAINING_COPPER_CASING.get());
         event.registerItem(Capabilities.FluidHandler.ITEM,
-                (stack, context) -> new CompressedTankFluidHandler(stack),
+                (stack, context) -> {
+                    if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+                        return null;
+                    }
+                    return new CompressedTankFluidHandler(stack);
+                },
                 AllItems.COMPRESSED_STORAGE_TANK.get());
     }
 
@@ -146,21 +157,45 @@ public class FluidLogistics {
             return;
         }
 
-        if (!FeatureToggle.isEnabled(FeatureToggle.FLUID_TRANSPORTER)) {
-            ItemStack hiddenItem = event.getSearchEntries().stream()
-                    .filter(stack -> stack.getItem() == AllBlocks.FLUID_TRANSPORTER.asItem())
-                    .findFirst()
-                    .orElseGet(() -> event.getParentEntries().stream()
-                            .filter(stack -> stack.getItem() == AllBlocks.FLUID_TRANSPORTER.asItem())
-                            .findFirst()
-                            .orElse(ItemStack.EMPTY));
+        for (FeatureItem fi : FEATURE_ITEMS) {
+            if (!FeatureToggle.isEnabled(fi.feature)) {
+                ItemStack hiddenItem = event.getSearchEntries().stream()
+                        .filter(stack -> stack.getItem() == fi.item.get().asItem())
+                        .findFirst()
+                        .orElseGet(() -> event.getParentEntries().stream()
+                                .filter(stack -> stack.getItem() == fi.item.get().asItem())
+                                .findFirst()
+                                .orElse(ItemStack.EMPTY));
 
-            if (!hiddenItem.isEmpty()) {
-                event.remove(hiddenItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                if (!hiddenItem.isEmpty()) {
+                    event.remove(hiddenItem, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                }
             }
         }
-
     }
+
+    record FeatureItem(ResourceLocation feature, Supplier<? extends ItemLike> item) {}
+
+    private static final FeatureItem[] FEATURE_ITEMS = {
+            new FeatureItem(FeatureToggle.FLUID_TRANSPORTER, AllBlocks.FLUID_TRANSPORTER),
+            new FeatureItem(FeatureToggle.SMART_FAUCET, AllBlocks.SMART_FAUCET),
+            new FeatureItem(FeatureToggle.FAUCET, AllBlocks.FAUCET),
+            new FeatureItem(FeatureToggle.MULTI_FLUID_TANK, AllBlocks.MULTI_FLUID_TANK),
+            new FeatureItem(FeatureToggle.HORIZONTAL_MULTI_FLUID_TANK, AllBlocks.HORIZONTAL_MULTI_FLUID_TANK),
+            new FeatureItem(FeatureToggle.MULTI_FLUID_ACCESS_PORT, AllBlocks.MULTI_FLUID_ACCESS_PORT),
+            new FeatureItem(FeatureToggle.SMART_HOPPER, AllBlocks.SMART_HOPPER),
+            new FeatureItem(FeatureToggle.FLUID_PUMP, AllBlocks.FLUID_PUMP),
+            new FeatureItem(FeatureToggle.INFINITE_FLUID_TANK, AllBlocks.INFINITE_FLUID_TANK),
+            new FeatureItem(FeatureToggle.WATER_CONTAINING_COPPER_CASING, AllBlocks.WATER_CONTAINING_COPPER_CASING),
+            new FeatureItem(FeatureToggle.COPPER_BASIN, AllBlocks.COPPER_BASIN),
+            new FeatureItem(FeatureToggle.MECHANICAL_FLUID_GUN, AllBlocks.MECHANICAL_FLUID_GUN),
+            new FeatureItem(FeatureToggle.HAND_POINTER, AllItems.HAND_POINTER),
+            // Advanced-logistics-only items (controlled by the master switch)
+            new FeatureItem(FeatureToggle.FLUID_PACKAGER, AllBlocks.FLUID_PACKAGER),
+            new FeatureItem(FeatureToggle.COMPRESSED_STORAGE_TANK, AllItems.COMPRESSED_STORAGE_TANK),
+            new FeatureItem(FeatureToggle.RARE_FLUID_PACKAGE, AllItems.RARE_FLUID_PACKAGE),
+            new FeatureItem(FeatureToggle.RARE_FLUID_PACKAGE, AllItems.FLUID_PACKAGE_2),
+    };
 
     public static ResourceLocation asResource(String path) {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);

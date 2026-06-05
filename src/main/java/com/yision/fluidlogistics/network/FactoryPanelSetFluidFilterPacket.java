@@ -3,6 +3,7 @@ package com.yision.fluidlogistics.network;
 import com.simibubi.create.content.fluids.transfer.GenericItemEmptying;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelPosition;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.item.CompressedTankItem;
 
 import net.createmod.catnip.data.Pair;
@@ -40,6 +41,10 @@ public record FactoryPanelSetFluidFilterPacket(
 
     @Override
     public void handle(ServerPlayer player) {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return;
+        }
+
         FactoryPanelBehaviour behaviour = FactoryPanelBehaviour.at(player.level(), panelPosition);
         if (behaviour == null) {
             return;

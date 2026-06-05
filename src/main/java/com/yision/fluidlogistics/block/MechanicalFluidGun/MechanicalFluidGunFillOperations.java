@@ -5,6 +5,7 @@ import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlockEntity;
 import com.yision.fluidlogistics.block.Faucet.FaucetFilling;
+import com.yision.fluidlogistics.config.FeatureToggle;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,6 +37,9 @@ class MechanicalFluidGunFillOperations {
 
 	@Nullable
 	static IFluidHandler getTargetFluidHandler(Level level, BlockPos pos, @Nullable Direction face) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return null;
+		}
 		IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, face);
 		if (handler == null) {
 			handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, null);
@@ -45,6 +49,9 @@ class MechanicalFluidGunFillOperations {
 
 	static FluidStack findFillableFluidForItem(MechanicalFluidGunContext ctx, IFluidHandler sourceHandler,
 											   ItemStack item) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return FluidStack.EMPTY;
+		}
 		for (int tank = 0; tank < sourceHandler.getTanks(); tank++) {
 			FluidStack candidate = sourceHandler.getFluidInTank(tank);
 			if (candidate.isEmpty() || !ctx.testFilter(candidate)) continue;
@@ -57,7 +64,10 @@ class MechanicalFluidGunFillOperations {
 	}
 
 	static FluidStack findFillableFluidForContainer(MechanicalFluidGunContext ctx, IFluidHandler sourceHandler,
-														IFluidHandler targetHandler, BlockPos targetPos) {
+															IFluidHandler targetHandler, BlockPos targetPos) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return FluidStack.EMPTY;
+		}
 		for (int tank = 0; tank < sourceHandler.getTanks(); tank++) {
 			FluidStack candidate = sourceHandler.getFluidInTank(tank);
 			if (candidate.isEmpty() || !ctx.testFilter(candidate)) continue;
@@ -100,6 +110,9 @@ class MechanicalFluidGunFillOperations {
 
 	static FluidStack findFillableFluidForCauldron(MechanicalFluidGunContext ctx, IFluidHandler sourceHandler,
 												   BlockState targetState) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return FluidStack.EMPTY;
+		}
 		for (int tank = 0; tank < sourceHandler.getTanks(); tank++) {
 			FluidStack candidate = sourceHandler.getFluidInTank(tank);
 			if (candidate.isEmpty() || !ctx.testFilter(candidate)) continue;
@@ -128,6 +141,9 @@ class MechanicalFluidGunFillOperations {
 
 	static boolean tryFillContainerWithActiveTarget(MechanicalFluidGunContext ctx, MechanicalFluidGunVisuals visuals,
 													MechanicalFluidGunTargetConfig target, BlockPos absTarget) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return false;
+		}
 		Level level = ctx.level();
 		IFluidHandler sourceHandler = ctx.sourceHandler();
 		if (sourceHandler == null) return false;
@@ -173,6 +189,9 @@ class MechanicalFluidGunFillOperations {
 
 	static boolean tryFillCauldron(MechanicalFluidGunContext ctx, MechanicalFluidGunVisuals visuals,
 								  BlockPos targetPos, BlockState targetState, FluidStack availableFluid) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return false;
+		}
 		Level level = ctx.level();
 		IFluidHandler sourceHandler = ctx.sourceHandler();
 		if (sourceHandler == null) return false;
@@ -210,6 +229,9 @@ class MechanicalFluidGunFillOperations {
 
 	static boolean fillWaterCauldronLevel(MechanicalFluidGunContext ctx, MechanicalFluidGunVisuals visuals,
 										  BlockPos targetPos, int targetLevel) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return false;
+		}
 		IFluidHandler sourceHandler = ctx.sourceHandler();
 		if (sourceHandler == null) return false;
 
@@ -230,12 +252,18 @@ class MechanicalFluidGunFillOperations {
 
 	static boolean canFuel(MechanicalFluidGunContext ctx, IFluidHandler source,
 						   BlockState state, BlockPos pos) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return false;
+		}
 		if (!isBlazeBurnerWithEntity(ctx.level(), state, pos)) return false;
 		return !findFuelFluid(ctx, source, state, pos).isEmpty();
 	}
 
 	static boolean tryFuel(MechanicalFluidGunContext ctx, MechanicalFluidGunVisuals visuals,
 						   IFluidHandler source, BlockState state, BlockPos pos) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return false;
+		}
 		if (!isBlazeBurnerWithEntity(ctx.level(), state, pos)) return false;
 
 		FluidStack fuel = findFuelFluid(ctx, source, state, pos);
@@ -272,6 +300,9 @@ class MechanicalFluidGunFillOperations {
 
 	static FluidStack findFuelFluid(MechanicalFluidGunContext ctx, IFluidHandler source,
 									 BlockState state, BlockPos pos) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return FluidStack.EMPTY;
+		}
 		for (int tank = 0; tank < source.getTanks(); tank++) {
 			FluidStack candidate = source.getFluidInTank(tank);
 			if (candidate.isEmpty() || candidate.getAmount() < BUCKET_AMOUNT) continue;

@@ -6,6 +6,7 @@ import com.simibubi.create.content.fluids.transfer.GenericItemFilling;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.fluid.FluidHelper;
 import com.simibubi.create.foundation.fluid.FluidHelper.FluidExchange;
+import com.yision.fluidlogistics.config.FeatureToggle;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -17,6 +18,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -32,6 +34,14 @@ public class InfiniteFluidTankBlock extends Block implements IWrenchable, IBE<In
 
 	public InfiniteFluidTankBlock(Properties properties) {
 		super(properties);
+	}
+
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.INFINITE_FLUID_TANK)) {
+			return null;
+		}
+		return super.getStateForPlacement(context);
 	}
 
 	@Override

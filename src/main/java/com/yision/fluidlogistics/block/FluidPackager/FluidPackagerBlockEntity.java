@@ -97,7 +97,12 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
         event.registerBlockEntity(
             Capabilities.ItemHandler.BLOCK,
             AllBlockEntities.FLUID_PACKAGER.get(),
-            (be, context) -> be.inventory
+            (be, context) -> {
+                if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+                    return null;
+                }
+                return be.inventory;
+            }
         );
     }
 
@@ -114,6 +119,10 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return false;
+        }
+
         String address = signBasedAddress;
         if (level != null && level.isClientSide) {
             String scannedAddress = findSignAddress();
@@ -165,6 +174,10 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 
     @Override
     public void tick() {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return;
+        }
+
         boolean fluidInsertionNeeded = animationTicks == 1 && animationInward
             && !level.isClientSide() && !pendingFluidsToInsert.isEmpty();
 
@@ -192,6 +205,10 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 
     @Override
     public InventorySummary getAvailableItems() {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return new InventorySummary();
+        }
+
         IFluidHandler fluidHandler = fluidTarget.getInventory();
 
         Map<FluidTypeKey, Integer> scannedSnapshot = scanAvailableFluids(fluidHandler);
@@ -338,6 +355,10 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 
     @Override
     public void attemptToSend(List<PackagingRequest> queuedRequests) {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return;
+        }
+
         if (queuedRequests == null) {
             attemptToPackageFluid();
             return;
@@ -346,6 +367,9 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
     }
 
     public void attemptToPackageFluid() {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return;
+        }
         if (!heldBox.isEmpty() || animationTicks != 0 || buttonCooldown > 0)
             return;
 
@@ -435,6 +459,10 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 
     @Override
     public boolean unwrapBox(ItemStack box, boolean simulate) {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return false;
+        }
+
         if (animationTicks > 0)
             return false;
         if (!FluidPackageItem.isFluidPackage(box))
@@ -535,6 +563,10 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
             @Nullable PackageOrderWithCrafts context,
             @Nullable com.simibubi.create.content.logistics.packager.IdentifiedInventory ignoredHandler) {
 
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return null;
+        }
+
         if (isTargetingSameInventory(ignoredHandler))
             return null;
 
@@ -557,6 +589,9 @@ public class FluidPackagerBlockEntity extends PackagerBlockEntity
 
     @Override
     public void attemptToSendFluidRequest(List<PackagingRequest> queuedRequests) {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return;
+        }
         if (queuedRequests == null || queuedRequests.isEmpty())
             return;
 

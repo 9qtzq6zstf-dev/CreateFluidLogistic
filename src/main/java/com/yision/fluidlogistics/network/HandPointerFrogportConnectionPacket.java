@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import com.yision.fluidlogistics.config.Config;
+
 import com.simibubi.create.content.kinetics.chainConveyor.ChainConveyorBlockEntity;
 import com.simibubi.create.content.logistics.packagePort.PackagePortBlockEntity;
 import com.simibubi.create.content.logistics.packagePort.PackagePortTarget.ChainConveyorFrogportTarget;
@@ -74,6 +76,10 @@ public record HandPointerFrogportConnectionPacket(
 
     @Override
     public void handle(ServerPlayer player) {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return;
+        }
+
         Level level = player.level();
         if (!level.isLoaded(chainConveyorPos)) {
             return;

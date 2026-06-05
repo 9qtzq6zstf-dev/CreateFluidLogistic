@@ -5,6 +5,7 @@ import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import com.simibubi.create.foundation.block.IBE;
 import com.mojang.serialization.MapCodec;
+import com.yision.fluidlogistics.config.FeatureToggle;
 import java.util.EnumMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,6 +17,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
@@ -59,8 +61,15 @@ public abstract class AbstractFaucetBlock<T extends AbstractFaucetBlockEntity> e
         super.createBlockStateDefinition(builder.add(FACING, OPEN, POWERED));
     }
 
+    protected ResourceLocation getFeature() { return null; }
+
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
+        ResourceLocation feature = getFeature();
+        if (feature != null && !FeatureToggle.isEnabled(feature)) {
+            return null;
+        }
+
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         Direction facing = resolvePlacementFacing(level, pos, context.getHorizontalDirection().getOpposite());

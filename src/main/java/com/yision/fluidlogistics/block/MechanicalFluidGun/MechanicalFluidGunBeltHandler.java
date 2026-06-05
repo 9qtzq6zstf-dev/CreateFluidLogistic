@@ -5,6 +5,7 @@ import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackH
 import com.simibubi.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour.TransportedResult;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.yision.fluidlogistics.block.Faucet.FaucetFilling;
+import com.yision.fluidlogistics.config.FeatureToggle;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -35,6 +36,9 @@ class MechanicalFluidGunBeltHandler {
 
 	BeltProcessingBehaviour.ProcessingResult onBeltItemReceived(TransportedItemStack transported,
 																TransportedItemStackHandlerBehaviour handler) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return PASS;
+		}
 		if (handler.blockEntity.isVirtual()) return PASS;
 		if (be.getSpeed() == 0) return PASS;
 
@@ -67,6 +71,9 @@ class MechanicalFluidGunBeltHandler {
 
 	BeltProcessingBehaviour.ProcessingResult whenBeltItemHeld(TransportedItemStack transported,
 															  TransportedItemStackHandlerBehaviour handler) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return PASS;
+		}
 		if (be.getSpeed() == 0) return PASS;
 
 		MechanicalFluidGunTargets targets = be.getTargetsHelper();
@@ -228,6 +235,9 @@ class MechanicalFluidGunBeltHandler {
 
 	@Nullable
 	static BeltProcessingBehaviour findProcessingAt(Level level, BlockPos beltPos) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return null;
+		}
 		MechanicalFluidGunBlockEntity best = null;
 		double bestDistance = Double.MAX_VALUE;
 

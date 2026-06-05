@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.simibubi.create.foundation.utility.CreateLang;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.registry.AllDataComponents;
 
 import net.minecraft.ChatFormatting;
@@ -52,6 +53,9 @@ public class HandPointerItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack heldStack = player.getItemInHand(usedHand);
+        if (!Config.isHandPointerEnabled()) {
+            return InteractionResultHolder.pass(heldStack);
+        }
         return InteractionResultHolder.success(heldStack);
     }
 

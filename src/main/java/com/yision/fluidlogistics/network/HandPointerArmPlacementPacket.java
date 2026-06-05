@@ -2,6 +2,7 @@ package com.yision.fluidlogistics.network;
 
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmBlockEntity;
 import com.simibubi.create.content.kinetics.mechanicalArm.ArmInteractionPoint;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.item.HandPointerItem;
 import com.yision.fluidlogistics.mixin.accessor.ArmBlockEntityAccessor;
 import net.createmod.catnip.net.base.ServerboundPacketPayload;
@@ -57,6 +58,10 @@ public record HandPointerArmPlacementPacket(ListTag pointsTag, BlockPos armPos) 
 
     @Override
     public void handle(ServerPlayer player) {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return;
+        }
+
         if (!player.mayBuild()) {
             return;
         }

@@ -92,6 +92,10 @@ public class CompressedTankItem extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return InteractionResult.PASS;
+        }
+
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         Direction side = context.getClickedFace();
@@ -131,6 +135,10 @@ public class CompressedTankItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack heldStack = player.getItemInHand(usedHand);
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return InteractionResultHolder.pass(heldStack);
+        }
+
         FluidStack fluid = getFluid(heldStack);
 
         if (level.isClientSide()) {

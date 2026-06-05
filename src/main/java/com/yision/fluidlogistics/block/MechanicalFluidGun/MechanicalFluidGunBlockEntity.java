@@ -107,6 +107,11 @@ public class MechanicalFluidGunBlockEntity extends KineticBlockEntity implements
 	@Override
 	public void tick() {
 		super.tick();
+
+		if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return;
+		}
+
 		if (level == null) return;
 
 		if (level.isClientSide) {

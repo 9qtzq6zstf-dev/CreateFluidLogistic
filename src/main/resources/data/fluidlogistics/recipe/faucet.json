@@ -16,5 +16,11 @@
   "result": {
     "count": 1,
     "id": "fluidlogistics:faucet"
-  }
+  },
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:faucet"
+    }
+  ]
 }

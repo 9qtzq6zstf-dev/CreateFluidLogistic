@@ -20,6 +20,7 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBoard;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsFormatter.ScrollOptionSettingsFormatter;
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollOptionBehaviour;
+import com.yision.fluidlogistics.config.Config;
 
 import com.google.common.collect.ImmutableList;
 
@@ -204,6 +205,10 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 	public void tick() {
 		super.tick();
 
+		if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.FLUID_PUMP)) {
+			return;
+		}
+
 		if (level.isClientSide && !isVirtual())
 			return;
 
@@ -237,7 +242,7 @@ public class FluidPumpBlockEntity extends PumpBlockEntity {
 
 			List<Pair<Integer, BlockPos>> frontier = new ArrayList<>();
 			Set<BlockPos> visited = new HashSet<>();
-			int maxDistance = RANGE;
+			int maxDistance = Config.getFluidPumpRange();
 			frontier.add(Pair.of(1, start.getConnectedPos()));
 
 			while (!frontier.isEmpty()) {

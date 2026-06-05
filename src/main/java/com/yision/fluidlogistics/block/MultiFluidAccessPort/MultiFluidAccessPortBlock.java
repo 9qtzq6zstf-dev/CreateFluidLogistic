@@ -6,6 +6,7 @@ import com.simibubi.create.content.fluids.transfer.GenericItemFilling;
 import com.simibubi.create.content.redstone.DirectedDirectionalBlock;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.fluid.FluidHelper;
+import com.yision.fluidlogistics.config.FeatureToggle;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 import net.createmod.catnip.data.Pair;
 import net.minecraft.core.BlockPos;
@@ -49,6 +50,9 @@ public class MultiFluidAccessPortBlock extends DirectedDirectionalBlock
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
+        if (!FeatureToggle.isEnabled(FeatureToggle.MULTI_FLUID_ACCESS_PORT)) {
+            return null;
+        }
         BlockState state = defaultBlockState();
         Direction preferredFacing = null;
 

@@ -20,5 +20,11 @@
   "result": {
     "count": 1,
     "id": "fluidlogistics:smart_faucet"
-  }
+  },
+  "neoforge:conditions": [
+    {
+      "type": "fluidlogistics:feature_enabled",
+      "feature": "fluidlogistics:smart_faucet"
+    }
+  ]
 }

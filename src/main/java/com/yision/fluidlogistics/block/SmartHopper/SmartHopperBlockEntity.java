@@ -69,9 +69,19 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, AllBlockEntities.SMART_HOPPER.get(),
-			(be, side) -> be.exposedItemHandler);
+			(be, side) -> {
+				if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.SMART_HOPPER)) {
+					return null;
+				}
+				return be.exposedItemHandler;
+			});
 		event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, AllBlockEntities.SMART_HOPPER.get(),
-			(be, side) -> be.tank == null ? null : be.exposedFluidHandler);
+			(be, side) -> {
+				if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.SMART_HOPPER)) {
+					return null;
+				}
+				return be.tank == null ? null : be.exposedFluidHandler;
+			});
 	}
 
 	@Override
@@ -85,6 +95,10 @@ public class SmartHopperBlockEntity extends SmartBlockEntity {
 	@Override
 	public void tick() {
 		super.tick();
+
+		if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.SMART_HOPPER)) {
+			return;
+		}
 
 		if (level == null || level.isClientSide) {
 			return;

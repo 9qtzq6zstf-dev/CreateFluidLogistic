@@ -14,6 +14,7 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.block.SmartFaucet.SmartFaucetFilterSlotPositioning;
+import com.yision.fluidlogistics.config.FeatureToggle;
 import com.yision.fluidlogistics.network.FaucetDripParticlePacket;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -94,6 +95,8 @@ public abstract class AbstractFaucetBlockEntity extends SmartBlockEntity {
         super(type, pos, state);
     }
 
+    protected abstract net.minecraft.resources.ResourceLocation getFeatureKey();
+
     protected boolean supportsFluidFilter() {
         return false;
     }
@@ -123,6 +126,10 @@ public abstract class AbstractFaucetBlockEntity extends SmartBlockEntity {
     @Override
     public void tick() {
         super.tick();
+
+        if (!FeatureToggle.isEnabled(getFeatureKey())) {
+            return;
+        }
 
         if (level == null || level.isClientSide) {
             return;

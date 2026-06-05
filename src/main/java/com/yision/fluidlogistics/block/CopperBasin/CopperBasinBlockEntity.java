@@ -174,6 +174,11 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 	@Override
 	public void tick() {
 		super.tick();
+
+		if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.COPPER_BASIN)) {
+			return;
+		}
+
 		if (level == null || level.isClientSide)
 			return;
 		pushOutputFluidsToSpoutputTarget();
@@ -250,12 +255,22 @@ public class CopperBasinBlockEntity extends BasinBlockEntity {
 		event.registerBlockEntity(
 			Capabilities.ItemHandler.BLOCK,
 			AllBlockEntities.COPPER_BASIN.get(),
-			(be, context) -> be.itemCapability
+			(be, context) -> {
+				if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.COPPER_BASIN)) {
+					return null;
+				}
+				return be.itemCapability;
+			}
 		);
 		event.registerBlockEntity(
 			Capabilities.FluidHandler.BLOCK,
 			AllBlockEntities.COPPER_BASIN.get(),
-			(be, context) -> be.fluidCapability
+			(be, context) -> {
+				if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.COPPER_BASIN)) {
+					return null;
+				}
+				return be.fluidCapability;
+			}
 		);
 	}
 

@@ -3,6 +3,7 @@ package com.yision.fluidlogistics.block.MechanicalFluidGun;
 import com.simibubi.create.content.kinetics.belt.transport.TransportedItemStack;
 import com.simibubi.create.content.logistics.depot.DepotBehaviour;
 import com.yision.fluidlogistics.block.Faucet.FaucetFilling;
+import com.yision.fluidlogistics.config.FeatureToggle;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -28,6 +29,9 @@ class MechanicalFluidGunProcessor {
 	}
 
 	void tickServer() {
+		if (!FeatureToggle.isEnabled(FeatureToggle.MECHANICAL_FLUID_GUN)) {
+			return;
+		}
 		MechanicalFluidGunTargets targets = be.getTargetsHelper();
 		MechanicalFluidGunCycle cycle = be.getCycleHelper();
 		MechanicalFluidGunVisuals visuals = be.getVisualsHelper();

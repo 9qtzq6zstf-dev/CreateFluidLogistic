@@ -2,6 +2,7 @@ package com.yision.fluidlogistics.network;
 
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.advancement.AllTriggers;
+import com.yision.fluidlogistics.config.Config;
 
 import net.createmod.catnip.net.base.ServerboundPacketPayload;
 import net.createmod.catnip.platform.CatnipServices;
@@ -30,6 +31,10 @@ public record HandPointerModeEnteredPacket() implements ServerboundPacketPayload
 
     @Override
     public void handle(ServerPlayer player) {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return;
+        }
+
         AllTriggers.HAND_POINTER_MODE.trigger(player);
     }
 

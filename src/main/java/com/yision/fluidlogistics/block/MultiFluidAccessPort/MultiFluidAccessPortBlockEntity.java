@@ -109,7 +109,12 @@ public class MultiFluidAccessPortBlockEntity extends SmartBlockEntity implements
 
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, AllBlockEntities.MULTI_FLUID_ACCESS_PORT.get(),
-            (be, side) -> be.getFluidCapability(side));
+            (be, side) -> {
+                if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.MULTI_FLUID_ACCESS_PORT)) {
+                    return null;
+                }
+                return be.getFluidCapability(side);
+            });
     }
 
     public IFluidHandler getFluidCapability(Direction side) {

@@ -3,6 +3,7 @@ package com.yision.fluidlogistics.block.SmartHopper;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import com.simibubi.create.foundation.block.IBE;
 import com.simibubi.create.foundation.block.ProperWaterloggedBlock;
+import com.yision.fluidlogistics.config.FeatureToggle;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -75,6 +76,9 @@ public class SmartHopperBlock extends Block implements IWrenchable, IBE<SmartHop
 
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.SMART_HOPPER)) {
+			return null;
+		}
 		Level level = context.getLevel();
 		BlockPos pos = context.getClickedPos();
 		boolean waterlogged = level.getFluidState(pos).getType() == Fluids.WATER;

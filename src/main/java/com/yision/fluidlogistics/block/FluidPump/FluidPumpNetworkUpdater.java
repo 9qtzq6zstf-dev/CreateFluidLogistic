@@ -7,6 +7,8 @@ import java.util.Set;
 
 import com.simibubi.create.content.fluids.FluidPropagator;
 import com.simibubi.create.content.fluids.FluidTransportBehaviour;
+import com.yision.fluidlogistics.config.Config;
+import com.yision.fluidlogistics.config.FeatureToggle;
 
 import net.createmod.catnip.data.Pair;
 import net.minecraft.core.BlockPos;
@@ -19,6 +21,9 @@ import net.minecraft.world.level.block.state.BlockState;
 public class FluidPumpNetworkUpdater {
 
 	public static void propagateChangedPipeForFluidPumps(LevelAccessor world, BlockPos pipePos, BlockState pipeState) {
+		if (!FeatureToggle.isEnabled(FeatureToggle.FLUID_PUMP)) {
+			return;
+		}
 		List<Pair<Integer, BlockPos>> frontier = new ArrayList<>();
 		Set<BlockPos> visited = new HashSet<>();
 		Set<Pair<FluidPumpBlockEntity, Direction>> discoveredPumps = new HashSet<>();
@@ -56,7 +61,7 @@ public class FluidPumpNetworkUpdater {
 				if (targetPipe == null)
 					continue;
 				Integer distance = pair.getFirst();
-				if (distance >= FluidPumpBlockEntity.RANGE && !targetPipe.hasAnyPressure())
+				if (distance >= Config.getFluidPumpRange() && !targetPipe.hasAnyPressure())
 					continue;
 				if (targetPipe.canHaveFlowToward(targetState, direction.getOpposite()))
 					frontier.add(Pair.of(distance + 1, target));

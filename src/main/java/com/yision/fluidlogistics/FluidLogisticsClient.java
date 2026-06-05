@@ -1,6 +1,7 @@
 package com.yision.fluidlogistics;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.client.handpointer.FrogportSelectionHandler;
 import com.yision.fluidlogistics.client.handpointer.HandPointerModeManager;
 import com.yision.fluidlogistics.client.handpointer.HandPointerInteractionHandler;
@@ -66,6 +67,10 @@ public class FluidLogisticsClient {
         @SubscribeEvent
         static void onRenderWorld(RenderLevelStageEvent event) {
             if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
+                return;
+            }
+
+            if (!Config.isAdvancedLogisticsNetworkEnabled()) {
                 return;
             }
 

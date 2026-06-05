@@ -2,6 +2,7 @@ package com.yision.fluidlogistics.network;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
+import com.yision.fluidlogistics.config.Config;
 import com.yision.fluidlogistics.util.IPackagerOverrideData;
 import net.createmod.catnip.net.base.ServerboundPacketPayload;
 import net.createmod.catnip.platform.CatnipServices;
@@ -37,6 +38,10 @@ public record HandPointerPackagerTogglePacket(BlockPos pos) implements Serverbou
 
     @Override
     public void handle(ServerPlayer player) {
+        if (!Config.isAdvancedLogisticsNetworkEnabled()) {
+            return;
+        }
+
         if (!player.mayBuild()) {
             return;
         }

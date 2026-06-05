@@ -78,6 +78,9 @@ public class MultiFluidTankBlockEntity extends SmartBlockEntity implements IHave
             Capabilities.FluidHandler.BLOCK,
             com.yision.fluidlogistics.registry.AllBlockEntities.MULTI_FLUID_TANK.get(),
             (be, side) -> {
+                if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.MULTI_FLUID_TANK)) {
+                    return null;
+                }
                 if (be.fluidCapability == null)
                     be.refreshCapability();
                 return be.fluidCapability;
@@ -106,6 +109,10 @@ public class MultiFluidTankBlockEntity extends SmartBlockEntity implements IHave
     @Override
     public void tick() {
         super.tick();
+
+        if (!com.yision.fluidlogistics.config.FeatureToggle.isEnabled(com.yision.fluidlogistics.config.FeatureToggle.MULTI_FLUID_TANK)) {
+            return;
+        }
 
         if (syncCooldown > 0) {
             syncCooldown--;
