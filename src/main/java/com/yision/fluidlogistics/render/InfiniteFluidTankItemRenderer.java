@@ -4,8 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModel;
 import com.simibubi.create.foundation.item.render.CustomRenderedItemModelRenderer;
 import com.simibubi.create.foundation.item.render.PartialItemModelRenderer;
-import com.yision.fluidlogistics.block.InfiniteFluidTank.InfiniteFluidTankBlockEntity;
 import com.yision.fluidlogistics.item.InfiniteFluidTankItem;
+import com.yision.fluidlogistics.util.InfiniteFluidSupplyRules;
 
 import net.createmod.catnip.platform.NeoForgeCatnipServices;
 import net.minecraft.client.Minecraft;
@@ -50,7 +50,7 @@ public class InfiniteFluidTankItemRenderer extends CustomRenderedItemModelRender
 		float minPuddleHeight = 1 / 16f;
 		float totalHeight = 1 - 2 * capHeight - minPuddleHeight;
 
-		float fillState = Mth.clamp((float) fluid.getAmount() / InfiniteFluidTankBlockEntity.CAPACITY, 0, 1);
+		float fillState = Mth.clamp((float) fluid.getAmount() / InfiniteFluidSupplyRules.getRequiredAmount(), 0, 1);
 		float fluidHeight = Mth.clamp(fillState * totalHeight, 0, totalHeight);
 		if (fluidHeight <= 0)
 			return;

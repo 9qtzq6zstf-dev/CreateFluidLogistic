@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.List;
@@ -29,8 +28,6 @@ import java.util.function.Consumer;
 
 public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IHaveGoggleInformation {
 
-	public static final int CAPACITY_BUCKETS = 10_000;
-	public static final int CAPACITY = CAPACITY_BUCKETS * FluidType.BUCKET_VOLUME;
 	private static final int SYNC_RATE = 8;
 
 	protected InfiniteSmartFluidTank tankInventory;
@@ -43,7 +40,7 @@ public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IH
 
 	public InfiniteFluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-		tankInventory = new InfiniteSmartFluidTank(CAPACITY, this::onFluidStackChanged);
+		tankInventory = new InfiniteSmartFluidTank(InfiniteFluidSupplyRules.getRequiredAmount(), this::onFluidStackChanged);
 		forceFluidLevelUpdate = true;
 		refreshCapability();
 	}
@@ -156,7 +153,7 @@ public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IH
 	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
 		super.read(compound, registries, clientPacket);
 		luminosity = compound.getInt("Luminosity");
-		tankInventory.setCapacity(CAPACITY);
+		tankInventory.setCapacity(InfiniteFluidSupplyRules.getRequiredAmount());
 		readTankContent(compound.getCompound("TankContent"), registries);
 		tankInventory.clampToCapacity();
 
@@ -225,7 +222,7 @@ public class InfiniteFluidTankBlockEntity extends SmartBlockEntity implements IH
 		}
 
 		public boolean isInfiniteMode() {
-			return InfiniteFluidSupplyRules.isInfiniteSupply(fluid, capacity);
+			return InfiniteFluidSupplyRules.isInfiniteSupply(fluid);
 		}
 
 		public boolean isEmpty() {
