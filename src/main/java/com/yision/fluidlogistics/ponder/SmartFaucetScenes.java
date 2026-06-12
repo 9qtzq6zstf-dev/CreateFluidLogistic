@@ -44,6 +44,7 @@ public class SmartFaucetScenes {
         BlockPos chestPos = util.grid().at(5, 2, 3);
         BlockPos funnelPos = util.grid().at(5, 2, 2);
         BlockPos depot1V = util.grid().at(3, 1, 3);
+        BlockPos basinPos = depot1V;
 
         Selection tank1Faucet1S = util.select().fromTo(tank1Bottom, tank1Top)
             .add(util.select().position(faucet1Pos));
@@ -53,6 +54,7 @@ public class SmartFaucetScenes {
         Selection faucet2S = util.select().position(faucet2Pos);
         Selection chestS = util.select().position(chestPos);
         Selection funnelS = util.select().position(funnelPos);
+        Selection basinS = util.select().position(basinPos);
         Selection largeCog = util.select().position(7, 0, 3);
         Selection kinetics = util.select().position(6, 1, 3);
         Selection belt = util.select().fromTo(0, 1, 2, 6, 1, 2);
@@ -82,20 +84,11 @@ public class SmartFaucetScenes {
         scene.world().modifyBlock(faucet1Pos,
             s -> s.setValue(SmartFaucetBlock.OPEN, true), false);
 
-        CompoundTag waterTag = new CompoundTag();
-        waterTag.putString("id", "minecraft:water");
-        waterTag.putInt("amount", 1000);
-        scene.world().modifyBlockEntityNBT(faucet1S, SmartFaucetBlockEntity.class,
-            nbt -> {
-                nbt.put("RenderingFluid", waterTag);
-                nbt.putInt("ProcessingTicks", 20);
-                nbt.putBoolean("IsFillingItem", true);
-                nbt.putInt("ProcessingTarget", 1);
-            });
+        CompoundTag waterTag = fluidTag("minecraft:water", 1000);
+        showFaucetFluid(scene, faucet1S, waterTag);
         scene.idle(25);
 
-        scene.world().modifyBlockEntityNBT(faucet1S, SmartFaucetBlockEntity.class,
-            nbt -> nbt.remove("RenderingFluid"));
+        hideFaucetFluid(scene, faucet1S);
         scene.world().removeItemsFromBelt(depotPos);
         scene.world().createItemOnBeltLike(depotPos, Direction.UP, new ItemStack(Items.WATER_BUCKET));
         scene.idle(10);
@@ -124,20 +117,11 @@ public class SmartFaucetScenes {
         scene.world().createItemOnBeltLike(depotPos, Direction.NORTH, new ItemStack(Items.BUCKET));
         scene.idle(20);
 
-        CompoundTag lavaTag = new CompoundTag();
-        lavaTag.putString("id", "minecraft:lava");
-        lavaTag.putInt("amount", 1000);
-        scene.world().modifyBlockEntityNBT(faucet1S, SmartFaucetBlockEntity.class,
-            nbt -> {
-                nbt.put("RenderingFluid", lavaTag);
-                nbt.putInt("ProcessingTicks", 20);
-                nbt.putBoolean("IsFillingItem", true);
-                nbt.putInt("ProcessingTarget", 1);
-            });
+        CompoundTag lavaTag = fluidTag("minecraft:lava", 1000);
+        showFaucetFluid(scene, faucet1S, lavaTag);
         scene.idle(25);
 
-        scene.world().modifyBlockEntityNBT(faucet1S, SmartFaucetBlockEntity.class,
-            nbt -> nbt.remove("RenderingFluid"));
+        hideFaucetFluid(scene, faucet1S);
         scene.world().removeItemsFromBelt(depotPos);
         scene.world().createItemOnBeltLike(depotPos, Direction.UP, new ItemStack(Items.LAVA_BUCKET));
         scene.idle(30);
@@ -146,10 +130,8 @@ public class SmartFaucetScenes {
         scene.world().setFilterData(faucet1S, SmartFaucetBlockEntity.class, ItemStack.EMPTY);
         scene.idle(20);
 
-        scene.world().setBlock(depotPos, AllBlocks.BASIN.getDefaultState(), false);
-        ElementLink<WorldSectionElement> basinLink =
-            scene.world().showIndependentSection(depotS, Direction.SOUTH);
-        scene.world().moveSection(basinLink, util.vector().of(3, 0, -2), 0);
+        scene.world().setBlock(basinPos, AllBlocks.BASIN.getDefaultState(), false);
+        scene.world().showSection(basinS, Direction.SOUTH);
         scene.idle(15);
 
         scene.overlay()
@@ -160,50 +142,26 @@ public class SmartFaucetScenes {
             .pointAt(util.vector().centerOf(depot1V));
         scene.idle(80);
 
-        CompoundTag basinWaterTag = new CompoundTag();
-        basinWaterTag.putString("id", "minecraft:water");
-        basinWaterTag.putInt("amount", 10000);
-        scene.world().modifyBlockEntityNBT(faucet1S, SmartFaucetBlockEntity.class,
-            nbt -> {
-                nbt.put("RenderingFluid", basinWaterTag);
-                nbt.putInt("ProcessingTicks", 20);
-                nbt.putBoolean("IsFillingItem", true);
-                nbt.putInt("ProcessingTarget", 0);
-            });
+        CompoundTag basinWaterTag = fluidTag("minecraft:water", 1000);
+        showFaucetFluid(scene, faucet1S, basinWaterTag);
         scene.idle(25);
 
-        scene.world().modifyBlockEntityNBT(faucet1S, SmartFaucetBlockEntity.class,
-            nbt -> nbt.remove("RenderingFluid"));
-        scene.world().modifyBlockEntity(depotPos, BasinBlockEntity.class, be -> {
-            var fh = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
-            if (fh != null)
-                fh.fill(new FluidStack(Fluids.WATER, 10000), FluidAction.EXECUTE);
-        });
+        hideFaucetFluid(scene, faucet1S);
+        addBasinFluid(scene, basinPos, new FluidStack(Fluids.WATER, 1000));
         scene.idle(10);
 
-        scene.world().modifyBlockEntityNBT(faucet1S, SmartFaucetBlockEntity.class,
-            nbt -> {
-                nbt.put("RenderingFluid", lavaTag);
-                nbt.putInt("ProcessingTicks", 20);
-                nbt.putBoolean("IsFillingItem", true);
-                nbt.putInt("ProcessingTarget", 0);
-            });
+        showFaucetFluid(scene, faucet1S, lavaTag);
         scene.idle(25);
 
-        scene.world().modifyBlockEntityNBT(faucet1S, SmartFaucetBlockEntity.class,
-            nbt -> nbt.remove("RenderingFluid"));
-        scene.world().modifyBlockEntity(depotPos, BasinBlockEntity.class, be -> {
-            var fh = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
-            if (fh != null)
-                fh.fill(new FluidStack(Fluids.LAVA, 10000), FluidAction.EXECUTE);
-        });
+        hideFaucetFluid(scene, faucet1S);
+        addBasinFluid(scene, basinPos, new FluidStack(Fluids.LAVA, 1000));
 
         scene.idle(50);
 
-        scene.world().hideIndependentSection(basinLink, Direction.UP);
+        scene.world().hideSection(basinS, Direction.UP);
         scene.world().hideIndependentSection(tank1Link, Direction.UP);
         scene.idle(5);
-        scene.world().setBlock(depotPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), false);
+        scene.world().setBlock(basinPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), false);
         scene.idle(30);
 
         Selection scaffoldingS = util.select().position(5, 1, 3);
@@ -242,20 +200,11 @@ public class SmartFaucetScenes {
         scene.world().stallBeltItem(bucketItem, true);
         scene.idle(10);
 
-        CompoundTag waterTag2 = new CompoundTag();
-        waterTag2.putString("id", "minecraft:water");
-        waterTag2.putInt("amount", 1000);
-        scene.world().modifyBlockEntityNBT(faucet2S, SmartFaucetBlockEntity.class,
-            nbt -> {
-                nbt.put("RenderingFluid", waterTag2);
-                nbt.putInt("ProcessingTicks", 20);
-                nbt.putBoolean("IsFillingItem", true);
-                nbt.putInt("ProcessingTarget", 2);
-            });
+        CompoundTag waterTag2 = fluidTag("minecraft:water", 1000);
+        showFaucetFluid(scene, faucet2S, waterTag2);
         scene.idle(25);
 
-        scene.world().modifyBlockEntityNBT(faucet2S, SmartFaucetBlockEntity.class,
-            nbt -> nbt.remove("RenderingFluid"));
+        hideFaucetFluid(scene, faucet2S);
         scene.world().removeItemsFromBelt(faucet2Pos.below());
         bucketItem = scene.world().createItemOnBelt(faucet2Pos.below(), Direction.UP, new ItemStack(Items.WATER_BUCKET));
         scene.world().stallBeltItem(bucketItem, true);
@@ -278,25 +227,53 @@ public class SmartFaucetScenes {
         scene.world().stallBeltItem(obsidianItem, true);
         scene.idle(10);
 
-        CompoundTag lavaTag2 = new CompoundTag();
-        lavaTag2.putString("id", "minecraft:lava");
-        lavaTag2.putInt("amount", 1000);
-        scene.world().modifyBlockEntityNBT(faucet2S, SmartFaucetBlockEntity.class,
-            nbt -> {
-                nbt.put("RenderingFluid", lavaTag2);
-                nbt.putInt("ProcessingTicks", 20);
-                nbt.putBoolean("IsFillingItem", true);
-                nbt.putInt("ProcessingTarget", 2);
-            });
+        CompoundTag lavaTag2 = fluidTag("minecraft:lava", 1000);
+        showFaucetFluid(scene, faucet2S, lavaTag2);
         scene.idle(25);
 
-        scene.world().modifyBlockEntityNBT(faucet2S, SmartFaucetBlockEntity.class,
-            nbt -> nbt.remove("RenderingFluid"));
+        hideFaucetFluid(scene, faucet2S);
         scene.world().removeItemsFromBelt(faucet2Pos.below());
         obsidianItem = scene.world().createItemOnBelt(faucet2Pos.below(), Direction.UP, AllItems.INCOMPLETE_REINFORCED_SHEET.asStack());
         scene.world().stallBeltItem(obsidianItem, true);
         scene.world().stallBeltItem(obsidianItem, false);
 
         scene.markAsFinished();
+    }
+
+    private static CompoundTag fluidTag(String fluidId, int amount) {
+        CompoundTag fluid = new CompoundTag();
+        fluid.putString("id", fluidId);
+        fluid.putInt("amount", amount);
+        return fluid;
+    }
+
+    private static void showFaucetFluid(CreateSceneBuilder scene, Selection faucet, CompoundTag fluid) {
+        scene.world().modifyBlockEntityNBT(faucet, SmartFaucetBlockEntity.class,
+            nbt -> {
+                nbt.put("RenderingFluid", fluid.copy());
+                nbt.putBoolean("IsFillingItem", false);
+                nbt.putInt("ProcessingTicks", 0);
+                nbt.putInt("ProcessingTarget", 0);
+                nbt.putInt("TransferCooldown", 40);
+            });
+    }
+
+    private static void hideFaucetFluid(CreateSceneBuilder scene, Selection faucet) {
+        scene.world().modifyBlockEntityNBT(faucet, SmartFaucetBlockEntity.class,
+            nbt -> {
+                nbt.remove("RenderingFluid");
+                nbt.putInt("TransferCooldown", 0);
+            });
+    }
+
+    private static void addBasinFluid(CreateSceneBuilder scene, BlockPos basinPos, FluidStack fluid) {
+        scene.world().modifyBlockEntity(basinPos, BasinBlockEntity.class, be -> {
+            var fh = be.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, be.getBlockPos(), null);
+            if (fh == null) {
+                return;
+            }
+
+            fh.fill(fluid.copy(), FluidAction.EXECUTE);
+        });
     }
 }

@@ -25,7 +25,7 @@ public class FluidPackagerScenes {
 
     public static void fluidPackager(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
-        scene.title(FLUID_PACKAGER, "Packaging Fluids");
+        scene.title(FLUID_PACKAGER, "Packaging and Unpacking Fluid Packages");
         scene.configureBasePlate(0, 0, 7);
         scene.showBasePlate();
 
@@ -85,7 +85,7 @@ public class FluidPackagerScenes {
 
         scene.overlay()
                 .showText(80)
-                .text("Given redstone power, it will extract fluids from the tank and package them")
+                .text("Given redstone power, they will extract fluid from the tank and package it up")
                 .attachKeyFrame()
                 .placeNearTarget()
                 .pointAt(util.vector().of(3, 1.5, 2.5));
@@ -193,7 +193,7 @@ public class FluidPackagerScenes {
 
         scene.overlay()
                 .showOutlineWithText(util.select().fromTo(packager2Pos, tank2Pos), 90)
-                .text("Packagers will not accept packages they cannot fully unpack")
+                .text("Fluid Packagers will not accept fluid packages they cannot fully unpack")
                 .colored(PonderPalette.RED)
                 .placeNearTarget()
                 .attachKeyFrame()
@@ -235,7 +235,7 @@ public class FluidPackagerScenes {
 
     public static void fluidPackagerAddress(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
-        scene.title(FLUID_PACKAGER_ADDRESS, "Routing Fluid Packages with an Address");
+        scene.title(FLUID_PACKAGER_ADDRESS, "Routing Fluid Packages by Address");
         scene.configureBasePlate(0, 0, 9);
         scene.scaleSceneView(.875f);
         scene.showBasePlate();
@@ -282,7 +282,7 @@ public class FluidPackagerScenes {
 
         scene.overlay()
                 .showText(60)
-                .text("When a sign is placed on a Fluid Packager..")
+                .text("When a sign is placed on a Fluid Packager...")
                 .attachKeyFrame()
                 .placeNearTarget()
                 .pointAt(util.vector()
@@ -324,7 +324,7 @@ public class FluidPackagerScenes {
                 .multiplyKineticSpeed(util.select().everywhere(), 1 / 32f);
         scene.overlay()
                 .showText(40)
-                .text("\u2192 Warehouse")
+                .text("-> Warehouse")
                 .colored(PonderPalette.OUTPUT)
                 .placeNearTarget()
                 .pointAt(util.vector()
@@ -393,7 +393,7 @@ public class FluidPackagerScenes {
 
         scene.overlay()
                 .showText(50)
-                .text("\u2192 Warehouse")
+                .text("-> Warehouse")
                 .colored(PonderPalette.OUTPUT)
                 .placeNearTarget()
                 .pointAt(util.vector()
@@ -419,7 +419,7 @@ public class FluidPackagerScenes {
 
         scene.overlay()
                 .showText(50)
-                .text("\u2192 Factory")
+                .text("-> Factory")
                 .colored(PonderPalette.OUTPUT)
                 .placeNearTarget()
                 .pointAt(util.vector()
@@ -442,7 +442,7 @@ public class FluidPackagerScenes {
                 .multiplyKineticSpeed(util.select().everywhere(), 1 / 32f);
         scene.overlay()
                 .showText(100)
-                .text("For compactness, mechanical saws can unpack fluid packages straight onto a belt")
+                .text("Fluid packages are destroyed by Mechanical Saws without dropping any items")
                 .attachKeyFrame()
                 .placeNearTarget()
                 .pointAt(util.vector().topOf(util.grid().at(2, 1, 4)));
@@ -481,7 +481,7 @@ public class FluidPackagerScenes {
 
         scene.overlay()
                 .showText(100)
-                .text("Aside from filters, Frogports and Postboxes have fluid package routing abilities")
+                .text("Besides filters, Package Frogports and Postboxes can also route fluid packages")
                 .attachKeyFrame()
                 .placeNearTarget()
                 .pointAt(util.vector()
@@ -490,7 +490,7 @@ public class FluidPackagerScenes {
 
         scene.overlay()
                 .showText(80)
-                .text("Inspect them to find out more about their behaviour")
+                .text("Check their Ponder scenes to learn how they behave")
                 .placeNearTarget()
                 .pointAt(util.vector()
                         .blockSurface(util.grid().at(3, 2, 4), Direction.NORTH));

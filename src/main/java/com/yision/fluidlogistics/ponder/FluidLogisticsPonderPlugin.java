@@ -16,6 +16,7 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
     public static final ResourceLocation LOGISTICS = Create.asResource("logistics");
     public static final ResourceLocation FLUIDS = Create.asResource("fluids");
     public static final ResourceLocation ARM_TARGETS = Create.asResource("arm_targets");
+    public static final ResourceLocation KINETIC_APPLIANCES = Create.asResource("kinetic_appliances");
 
     @Override
     public String getModId() {
@@ -33,6 +34,9 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
         registration.forComponents(AllBlocks.SMART_FAUCET)
                 .addStoryBoard(SmartFaucetScenes.SMART_FAUCET, SmartFaucetScenes::smartFaucet);
 
+        registration.forComponents(AllBlocks.FAUCET)
+                .addStoryBoard(FaucetScenes.FAUCET, FaucetScenes::faucet);
+
         registration.forComponents(AllBlocks.MULTI_FLUID_ACCESS_PORT)
                 .addStoryBoard(MultiFluidAccessPortScenes.MULTI_FLUID_ACCESS_PORT,
                         MultiFluidAccessPortScenes::multiFluidAccessPort);
@@ -43,6 +47,10 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
         registration.forComponents(AllBlocks.FLUID_TRANSPORTER)
                 .addStoryBoard(FluidTransporterScenes.FLUID_TRANSPORTER,
                         FluidTransporterScenes::fluidTransporter);
+
+        registration.forComponents(AllBlocks.MECHANICAL_FLUID_GUN)
+                .addStoryBoard(MechanicalFluidGunScenes.MECHANICAL_FLUID_GUN_SETUP,
+                        MechanicalFluidGunScenes::setup, FLUIDS, KINETIC_APPLIANCES);
     }
 
     @Override
@@ -57,9 +65,14 @@ public class FluidLogisticsPonderPlugin implements PonderPlugin {
 
         registration.addToTag(FLUIDS)
                 .add(AllBlocks.SMART_FAUCET)
+                .add(AllBlocks.FAUCET)
                 .add(AllBlocks.MULTI_FLUID_ACCESS_PORT)
                 .add(AllBlocks.SMART_HOPPER)
-                .add(AllBlocks.FLUID_TRANSPORTER);
+                .add(AllBlocks.FLUID_TRANSPORTER)
+                .add(AllBlocks.MECHANICAL_FLUID_GUN);
+
+        registration.addToTag(KINETIC_APPLIANCES)
+                .add(AllBlocks.MECHANICAL_FLUID_GUN);
 
         registration.addToTag(ARM_TARGETS)
                 .add(AllBlocks.SMART_HOPPER);
