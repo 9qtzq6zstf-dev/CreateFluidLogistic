@@ -1,8 +1,4 @@
 {
-  "advancement.fluidlogistics.let_me_point_it_out": "Let Me Point It Out",
-  "advancement.fluidlogistics.let_me_point_it_out.desc": "Use the Hand Pointer to enter configuration mode for the first time",
-  "advancement.fluidlogistics.non_instant_package": "Not-So-Instant Package",
-  "advancement.fluidlogistics.non_instant_package.desc": "Package your first Fluid Package",
   "item.fluidlogistics.compressed_storage_tank": "Compressed Storage Tank",
   "item.fluidlogistics.compressed_storage_tank.tooltip.summary": "Right-click on a fluid tank to _transfer fluid_ and _consume_ the compressed storage tank",
   "item.fluidlogistics.hand_pointer": "Hand Pointer",

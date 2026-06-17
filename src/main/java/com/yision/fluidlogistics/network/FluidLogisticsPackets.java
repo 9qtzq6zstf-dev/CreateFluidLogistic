@@ -24,7 +24,6 @@ public enum FluidLogisticsPackets implements BasePacketPayload.PacketTypeProvide
     HAND_POINTER_LOGISTICS_NETWORK(HandPointerLogisticsNetworkPacket.class, HandPointerLogisticsNetworkPacket.STREAM_CODEC),
     HAND_POINTER_CLEAR_CLIPBOARD_ADDRESS(HandPointerClearClipboardAddressPacket.class, HandPointerClearClipboardAddressPacket.STREAM_CODEC),
     HAND_POINTER_PACKAGER_TOGGLE(HandPointerPackagerTogglePacket.class, HandPointerPackagerTogglePacket.STREAM_CODEC),
-    HAND_POINTER_MODE_ENTERED(HandPointerModeEnteredPacket.class, HandPointerModeEnteredPacket.STREAM_CODEC),
     FAUCET_DRIP_PARTICLE(FaucetDripParticlePacket.class, FaucetDripParticlePacket.STREAM_CODEC),
     MECHANICAL_FLUID_GUN_TARGET(MechanicalFluidGunPackets.TargetPacket.class, MechanicalFluidGunPackets.TargetPacket.STREAM_CODEC),
     MECHANICAL_FLUID_GUN_ITEM_TARGET_SELECTION(MechanicalFluidGunPackets.ItemTargetSelectionPacket.class, MechanicalFluidGunPackets.ItemTargetSelectionPacket.STREAM_CODEC),

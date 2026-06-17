@@ -1,8 +1,4 @@
 {
-  "advancement.fluidlogistics.let_me_point_it_out": "让我来指点一二",
-  "advancement.fluidlogistics.let_me_point_it_out.desc": "使用指读棒第一次进入修改模式",
-  "advancement.fluidlogistics.non_instant_package": "非速溶包裹",
-  "advancement.fluidlogistics.non_instant_package.desc": "第一次打包出流体包裹",
   "item.fluidlogistics.compressed_storage_tank": "压缩储罐",
   "item.fluidlogistics.compressed_storage_tank.tooltip.summary": "对着流体储罐右键即可_转移流体_并_销毁_压缩储罐",
   "item.fluidlogistics.hand_pointer": "指读棒",

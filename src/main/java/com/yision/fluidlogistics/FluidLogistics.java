@@ -19,7 +19,6 @@ import com.yision.fluidlogistics.block.MultiFluidAccessPort.MultiFluidAccessPort
 import com.yision.fluidlogistics.block.MultiFluidTank.MultiFluidTankBlockEntity;
 import com.yision.fluidlogistics.block.SmartHopper.SmartHopperBlockEntity;
 import com.yision.fluidlogistics.block.CopperBasin.CopperBasinBlockEntity;
-import com.yision.fluidlogistics.advancement.AllTriggers;
 import com.yision.fluidlogistics.network.FluidLogisticsPackets;
 import com.yision.fluidlogistics.registry.FluidLogisticsArmInteractionPointTypes;
 import com.yision.fluidlogistics.registry.AllBlockEntities;
@@ -55,10 +54,8 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.registries.RegisterEvent;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -107,7 +104,6 @@ public class FluidLogistics {
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::registerCapabilities);
-        modEventBus.addListener(this::onRegister);
         modEventBus.addListener(this::hideDisabledItems);
 
         NeoForge.EVENT_BUS.register(this);
@@ -124,12 +120,6 @@ public class FluidLogistics {
             BlockStressValues.IMPACTS.register(AllBlocks.MECHANICAL_FLUID_GUN.get(), () -> 2.0);
             LOGGER.info("FluidLogistics mounted storage registered!");
         });
-    }
-
-    private void onRegister(final RegisterEvent event) {
-        if (event.getRegistry() == BuiltInRegistries.TRIGGER_TYPES) {
-            AllTriggers.register();
-        }
     }
 
     private void registerCapabilities(final RegisterCapabilitiesEvent event) {
