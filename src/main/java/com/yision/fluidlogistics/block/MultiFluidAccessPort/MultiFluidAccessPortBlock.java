@@ -150,9 +150,14 @@ public class MultiFluidAccessPortBlock extends DirectedDirectionalBlock
             return null;
         }
 
-        Pair<FluidStack, ItemStack> emptyingResult = GenericItemEmptying.emptyItem(level, heldItem, true);
-        FluidStack fluidStack = emptyingResult.getFirst();
-        if (fluidStack.isEmpty() || fluidStack.getAmount() != handler.fill(fluidStack, IFluidHandler.FluidAction.SIMULATE)) {
+        Pair<FluidStack, ItemStack> simulatedEmptying = GenericItemEmptying.emptyItem(level, heldItem, true);
+        FluidStack simulatedFluid = simulatedEmptying.getFirst();
+        if (simulatedFluid.isEmpty()) {
+            return null;
+        }
+
+        int simulatedFill = handler.fill(simulatedFluid.copy(), IFluidHandler.FluidAction.SIMULATE);
+        if (simulatedFill != simulatedFluid.getAmount()) {
             return null;
         }
 
@@ -161,15 +166,23 @@ public class MultiFluidAccessPortBlock extends DirectedDirectionalBlock
         }
 
         ItemStack copyOfHeld = heldItem.copy();
-        emptyingResult = GenericItemEmptying.emptyItem(level, copyOfHeld, false);
-        handler.fill(fluidStack, IFluidHandler.FluidAction.EXECUTE);
+        Pair<FluidStack, ItemStack> actualEmptying = GenericItemEmptying.emptyItem(level, copyOfHeld, false);
+        FluidStack actualFluid = actualEmptying.getFirst();
+        if (!isSameAmountFluid(actualFluid, simulatedFluid)) {
+            return null;
+        }
+
+        int actualFill = handler.fill(actualFluid.copy(), IFluidHandler.FluidAction.EXECUTE);
+        if (actualFill != actualFluid.getAmount()) {
+            return null;
+        }
 
         if (!player.isCreative()) {
             if (copyOfHeld.isEmpty()) {
-                player.setItemInHand(hand, emptyingResult.getSecond());
+                player.setItemInHand(hand, actualEmptying.getSecond());
             } else {
                 player.setItemInHand(hand, copyOfHeld);
-                player.getInventory().placeItemBackInInventory(emptyingResult.getSecond());
+                player.getInventory().placeItemBackInInventory(actualEmptying.getSecond());
             }
         }
 
@@ -188,7 +201,13 @@ public class MultiFluidAccessPortBlock extends DirectedDirectionalBlock
                 continue;
             }
             int requiredAmount = GenericItemFilling.getRequiredAmountForItem(level, heldItem, fluid.copy());
-            if (requiredAmount == -1 || requiredAmount > fluid.getAmount()) {
+            if (requiredAmount == -1) {
+                continue;
+            }
+
+            FluidStack requestedDrain = fluid.copyWithAmount(requiredAmount);
+            FluidStack simulatedDrain = handler.drain(requestedDrain, IFluidHandler.FluidAction.SIMULATE);
+            if (!isSameAmountFluid(simulatedDrain, requestedDrain)) {
                 continue;
             }
 
@@ -196,19 +215,31 @@ public class MultiFluidAccessPortBlock extends DirectedDirectionalBlock
                 return FluidHelper.FluidExchange.TANK_TO_ITEM;
             }
 
-            ItemStack held = player.isCreative() ? heldItem.copy() : heldItem;
-            ItemStack out = GenericItemFilling.fillItem(level, requiredAmount, held, fluid.copy());
-            FluidStack drained = fluid.copyWithAmount(requiredAmount);
-            handler.drain(drained, IFluidHandler.FluidAction.EXECUTE);
+            ItemStack workingStack = heldItem.copy();
+            ItemStack out = GenericItemFilling.fillItem(level, requiredAmount, workingStack, simulatedDrain.copy());
+            if (out.isEmpty()) {
+                continue;
+            }
+
+            FluidStack actualDrain = handler.drain(simulatedDrain.copy(), IFluidHandler.FluidAction.EXECUTE);
+            if (!isSameAmountFluid(actualDrain, simulatedDrain)) {
+                continue;
+            }
 
             if (!player.isCreative()) {
-                player.setItemInHand(hand, held);
+                player.setItemInHand(hand, workingStack);
                 player.getInventory().placeItemBackInInventory(out);
             }
             return FluidHelper.FluidExchange.TANK_TO_ITEM;
         }
 
         return null;
+    }
+
+    private static boolean isSameAmountFluid(FluidStack actual, FluidStack expected) {
+        return !actual.isEmpty()
+            && actual.getAmount() == expected.getAmount()
+            && FluidStack.isSameFluidSameComponents(actual, expected);
     }
 
     @Override
