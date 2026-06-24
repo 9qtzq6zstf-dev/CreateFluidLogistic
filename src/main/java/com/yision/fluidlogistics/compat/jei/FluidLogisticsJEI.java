@@ -7,6 +7,7 @@ import com.simibubi.create.content.logistics.redstoneRequester.RedstoneRequester
 import com.simibubi.create.content.logistics.stockTicker.StockKeeperRequestScreen;
 import com.yision.fluidlogistics.FluidLogistics;
 import com.yision.fluidlogistics.client.JeiRuntimeHolder;
+import com.yision.fluidlogistics.compat.CompatMods;
 import com.yision.fluidlogistics.handpointer.filter.HandPointerFilterScreen;
 
 import mezz.jei.api.IModPlugin;
@@ -36,9 +37,11 @@ public class FluidLogisticsJEI implements IModPlugin {
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
-        registration.addGhostIngredientHandler(FactoryPanelSetItemScreen.class, FactoryPanelSetItemFluidGhostHandler.INSTANCE);
+        if (!CompatMods.emiLoaded()) {
+            registration.addGhostIngredientHandler(FactoryPanelSetItemScreen.class, FactoryPanelSetItemFluidGhostHandler.INSTANCE);
+            registration.addGhostIngredientHandler(RedstoneRequesterScreen.class, RedstoneRequesterFluidGhostHandler.INSTANCE);
+        }
         registration.addGhostIngredientHandler(HandPointerFilterScreen.class, HandPointerFilterGhostHandler.INSTANCE);
-        registration.addGhostIngredientHandler(RedstoneRequesterScreen.class, RedstoneRequesterFluidGhostHandler.INSTANCE);
         registration.addGuiContainerHandler(StockKeeperRequestScreen.class, new StockKeeperRequestFluidGuiHandler());
     }
 

@@ -4,26 +4,31 @@ import java.util.List;
 
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.logistics.BigItemStack;
+import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.packager.PackagerBlock;
 import com.simibubi.create.content.logistics.packager.PackagerBlockEntity;
 import com.simibubi.create.content.logistics.packager.repackager.RepackagerBlockEntity;
 import com.yision.fluidlogistics.goggle.PackagerGoggleInfo;
+import com.yision.fluidlogistics.item.CompressedTankItem;
 import com.yision.fluidlogistics.util.IPackagerOverrideData;
 import net.createmod.catnip.data.Iterate;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PackagerBlockEntity.class)
 public class PackagerBlockEntityMixin implements IPackagerOverrideData, IHaveGoggleInformation {
@@ -34,6 +39,14 @@ public class PackagerBlockEntityMixin implements IPackagerOverrideData, IHaveGog
     private String fluidlogistics$clipboardAddress = "";
     @Unique
     private int fluidlogistics$queuedPackageCount;
+
+    @Inject(method = "unwrapBox", at = @At("HEAD"), cancellable = true)
+    private void fluidlogistics$rejectCompressedTankPackages(ItemStack box, boolean simulate,
+                                                             CallbackInfoReturnable<Boolean> cir) {
+        if (fluidlogistics$containsCompressedTank(box)) {
+            cir.setReturnValue(false);
+        }
+    }
 
     @Inject(method = "write", at = @At("RETURN"))
     private void fluidlogistics$writeOverrideData(CompoundTag compound, HolderLookup.Provider registries,
@@ -120,6 +133,22 @@ public class PackagerBlockEntityMixin implements IPackagerOverrideData, IHaveGog
 
         PackagerGoggleInfo.addToTooltip(tooltip, address, fluidlogistics$manualOverrideLocked, isRepackager, isLinkedToNetwork);
         return true;
+    }
+
+    @Unique
+    private static boolean fluidlogistics$containsCompressedTank(ItemStack box) {
+        if (box.isEmpty() || !PackageItem.isPackage(box)) {
+            return false;
+        }
+
+        ItemStackHandler contents = PackageItem.getContents(box);
+        for (int slot = 0; slot < contents.getSlots(); slot++) {
+            if (contents.getStackInSlot(slot).getItem() instanceof CompressedTankItem) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Unique
