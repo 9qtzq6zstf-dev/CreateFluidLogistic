@@ -185,7 +185,7 @@ publisher {
     setCurseID("1475079")
     setVersionType("release")
     setVersion("${project.mod_version}")
-    setDisplayName("Create：FluidLogistic ${project.mod_version}")
+    setDisplayName("Create: FluidLogistic ${project.mod_version}")
     setChangelog(latestChangelogForPublisher)
     setGameVersions("${project.minecraft_version}")
     setLoaders("neoforge")
